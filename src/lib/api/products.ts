@@ -1,0 +1,153 @@
+/**
+ * Service layer for products. Components import from HERE — never from `client.ts`
+ * directly. Backed by the WooCommerce Store API (public, no auth needed for reads).
+ *
+ *   Docs: https://github.com/woocommerce/woocommerce/blob/trunk/plugins/woocommerce/src/StoreApi/docs/products.md
+ *
+ * IMPORTANT: WC Store API returns `prices.price` as a STRING in MINOR units
+ * (e.g. "5500" with `currency_minor_unit: 2` means 55.00 MAD). We normalize
+ * everything to a Number in major units inside our domain `Money` type.
+ */
+
+import { apiFetch } from "./client";
+import type { Money, Product, Category } from "@/lib/types/product";
+import type { BranchSlug } from "@/lib/types/branch";
+
+interface WCStoreImage {
+  id?: number;
+  src: string;
+  thumbnail?: string;
+  name?: string;
+  alt?: string;
+}
+
+interface WCStoreCategory {
+  id: number;
+  name: string;
+  slug: string;
+  link?: string;
+}
+
+interface WCStorePrices {
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  currency_code: string;
+  currency_minor_unit: number;
+  currency_symbol: string;
+}
+
+interface WCStoreProduct {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  short_description: string;
+  permalink?: string;
+  on_sale?: boolean;
+  is_in_stock?: boolean;
+  prices: WCStorePrices;
+  images: WCStoreImage[];
+  categories: WCStoreCategory[];
+}
+
+interface WCStoreCategoryWithCount extends WCStoreCategory {
+  count?: number;
+}
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+function fromMinorUnits(value: string, minor: number): number {
+  return Number(value) / Math.pow(10, minor);
+}
+
+function toMoney(prices: WCStorePrices): Money {
+  return {
+    amount: fromMinorUnits(prices.price, prices.currency_minor_unit),
+    currency: (prices.currency_code as Money["currency"]) ?? "MAD",
+  };
+}
+
+function mapProduct(wp: WCStoreProduct): Product {
+  return {
+    id: String(wp.id),
+    slug: wp.slug,
+    name: wp.name,
+    description: stripHtml(wp.short_description || wp.description),
+    price: toMoney(wp.prices),
+    images: wp.images.map((img) => ({
+      src: img.src,
+      alt: img.alt || img.name || wp.name,
+    })),
+    category: wp.categories[0]?.slug ?? "",
+    available: wp.is_in_stock ?? true,
+    // Store API has no built-in "branch" concept. Until a custom taxonomy
+    // is added on the WP side (e.g. a `branch` term), every product is
+    // available in every city.
+    branchSlugs: [],
+  };
+}
+
+const STORE_BASE = "/wp-json/wc/store/v1";
+
+export async function getProducts(opts: { revalidate?: number } = {}): Promise<Product[]> {
+  if (!process.env.NEXT_PUBLIC_API_BASE) return [];
+  const list = await apiFetch<WCStoreProduct[]>(`${STORE_BASE}/products?per_page=100`, {
+    revalidate: opts.revalidate ?? 60,
+  });
+  return list.map(mapProduct);
+}
+
+export async function getProductsByBranch(
+  _branch: BranchSlug,
+  opts: { revalidate?: number } = {}
+): Promise<Product[]> {
+  // Once WP has a `branch` product attribute or taxonomy, change this to:
+  //   `${STORE_BASE}/products?per_page=100&attributes[0][attribute]=pa_branch&attributes[0][slug]=${_branch}`
+  return getProducts(opts);
+}
+
+/**
+ * Fetch products belonging to a specific WooCommerce category by slug.
+ * Filters in-memory off `getProducts()` so we hit the same ISR cache
+ * regardless of how many category pages we add.
+ */
+export async function getProductsByCategory(
+  categorySlug: string,
+  opts: { revalidate?: number } = {}
+): Promise<Product[]> {
+  const all = await getProducts(opts);
+  return all.filter((p) => p.category === categorySlug);
+}
+
+export async function getProductBySlug(
+  slug: string,
+  opts: { revalidate?: number } = {}
+): Promise<Product | null> {
+  if (!process.env.NEXT_PUBLIC_API_BASE) return null;
+  const list = await apiFetch<WCStoreProduct[]>(
+    `${STORE_BASE}/products?slug=${encodeURIComponent(slug)}`,
+    { revalidate: opts.revalidate ?? 60 }
+  );
+  return list[0] ? mapProduct(list[0]) : null;
+}
+
+export async function getCategories(
+  opts: { revalidate?: number } = {}
+): Promise<Category[]> {
+  if (!process.env.NEXT_PUBLIC_API_BASE) return [];
+  const list = await apiFetch<WCStoreCategoryWithCount[]>(
+    `${STORE_BASE}/products/categories?per_page=100`,
+    { revalidate: opts.revalidate ?? 300 }
+  );
+  return list
+    .filter((c) => (c.count ?? 0) > 0 || true)
+    .map((c) => ({
+      id: String(c.id),
+      slug: c.slug,
+      name: c.name,
+      productCount: c.count ?? 0,
+    }));
+}

@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-gold: #bf933a;
+  --color-gold-light: #f0bf61;
+  --color-dark: #060e0b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  overflow-x: hidden;
+  background: var(--color-dark);
+  color: #fff;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+}
+
+/* ---- Buttons ---- */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #bf933a 0%, #f0bf61 50%, #bf933a 100%);
+  background-size: 200% 200%;
+  color: #060e0b;
+  box-shadow: 0 4px 20px rgba(191, 147, 58, 0.25);
+  transition: all 0.4s ease;
+}
+.btn-gold:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 8px 40px rgba(191, 147, 58, 0.4);
+  transform: translateY(-2px);
+}
+.btn-outline {
+  border: 1px solid rgba(191, 147, 58, 0.3);
+  color: #f0bf61;
+  transition: all 0.4s ease;
+}
+.btn-outline:hover {
+  background: rgba(191, 147, 58, 0.08);
+  border-color: rgba(191, 147, 58, 0.6);
+  transform: translateY(-2px);
+}
+
+/* ---- Header glass ---- */
+.nav-transparent {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-glass {
+  background: rgba(6, 14, 11, 0.8);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(191, 147, 58, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Decorative ---- */
+.gold-line {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #bf933a, transparent);
+}
+
+/* ---- Branch Modal ---- */
+.branch-card {
+  background: rgba(26, 50, 43, 0.5);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(191, 147, 58, 0.1);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.branch-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(191, 147, 58, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.branch-btn {
+  background: linear-gradient(135deg, #bf933a 0%, #f0bf61 50%, #bf933a 100%);
+  background-size: 200% 200%;
+  color: #060e0b;
+  transition: all 0.4s ease;
+}
+.branch-btn:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 8px 30px rgba(191, 147, 58, 0.4);
+}
+body.branch-lock {
+  overflow: hidden !important;
+}
