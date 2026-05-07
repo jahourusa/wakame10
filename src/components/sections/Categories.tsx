@@ -69,7 +69,7 @@ function BentoCard({
 export function Categories() {
   return (
     <section id="menu" className="py-28 md:py-36 bg-dark-2">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="px-6 md:px-12">
         <Reveal className="text-center mb-14">
           <span className="text-gold text-[10px] uppercase tracking-[0.35em] font-semibold">
             Nos Univers

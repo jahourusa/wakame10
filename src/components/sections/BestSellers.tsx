@@ -4,21 +4,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useOrderModalStore } from "@/lib/store/order-modal-store";
 import type { Product } from "@/lib/types/product";
 
 interface Props {
   products: Product[];
 }
 
+const PRIORITY_CATEGORIES = ["assortiments-medium", "bentos", "tacos"];
+
+function priorityRank(slug: string): number {
+  const i = PRIORITY_CATEGORIES.indexOf(slug);
+  return i === -1 ? PRIORITY_CATEGORIES.length : i;
+}
+
 export function BestSellers({ products }: Props) {
   const add = useCartStore((s) => s.add);
-  const featured = products.slice(0, 3);
+  const openProduct = useOrderModalStore((s) => s.openProduct);
+  const featured = [...products]
+    .sort((a, b) => priorityRank(a.category) - priorityRank(b.category))
+    .slice(0, 6);
 
   if (featured.length === 0) return null;
 
   return (
     <section className="py-32 md:py-40 bg-dark-2">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="px-6 md:px-12">
         <Reveal className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
             <span className="text-gold text-[10px] uppercase tracking-[0.35em] font-semibold">
@@ -43,21 +54,21 @@ export function BestSellers({ products }: Props) {
               <Reveal
                 key={p.id}
                 delay={0.1 * (i + 1)}
-                className="group relative h-[480px] rounded-xl overflow-hidden"
+                className="group relative h-[480px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center"
               >
-                <Link
-                  href={`/product/${p.slug}`}
+                <button
+                  onClick={() => openProduct(p)}
                   aria-label={p.name}
-                  className="absolute inset-0 z-0"
+                  className="absolute inset-0 z-0 cursor-pointer"
                 />
                 <Image
                   src={p.images[0]?.src ?? ""}
                   alt={p.images[0]?.alt ?? p.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
+                  className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
 
                 <div
                   className={`absolute top-4 left-4 ${
@@ -75,31 +86,29 @@ export function BestSellers({ products }: Props) {
                   {p.price.amount} DH
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3 pointer-events-none">
+                <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
                   <h4 className="font-display text-xl text-white">{p.name}</h4>
                   <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
                     {p.description}
                   </p>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      add({
-                        id: p.id,
-                        slug: p.slug,
-                        name: p.name,
-                        price: p.price.amount,
-                        image: p.images[0]?.src ?? "",
-                      });
-                    }}
-                    className="pointer-events-auto relative z-10 w-full py-3 rounded-lg bg-gold/10 border border-gold/20 text-gold font-semibold tracking-[0.1em] text-[10px] uppercase hover:bg-gold hover:text-dark transition-all duration-300 backdrop-blur-sm flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      add_shopping_cart
-                    </span>
-                    Ajouter au panier
-                  </button>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    add({
+                      id: p.id,
+                      slug: p.slug,
+                      name: p.name,
+                      price: p.price.amount,
+                      image: p.images[0]?.src ?? "",
+                    });
+                  }}
+                  aria-label={`Ajouter ${p.name} au panier`}
+                  className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
+                >
+                  <span className="material-symbols-outlined text-[22px]">add</span>
+                </button>
               </Reveal>
             );
           })}

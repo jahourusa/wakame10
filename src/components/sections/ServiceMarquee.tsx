@@ -9,17 +9,25 @@ const services = [
 
 export function ServiceMarquee() {
   return (
-    <div className="py-7 bg-dark-2 border-y border-white/5 overflow-hidden">
+    <div
+      className="py-7 overflow-hidden border-y border-dark/10"
+      style={{
+        background:
+          "linear-gradient(135deg, #BF933A 0%, #F0BF61 50%, #BF933A 100%)",
+      }}
+    >
       <div className="flex whitespace-nowrap animate-marquee w-max">
         {[...services, ...services].map((s, i) => (
           <div key={i} className="flex items-center mx-3">
             <div className="flex items-center gap-3 mx-12">
-              <span className="material-symbols-outlined text-gold text-[24px]">
+              <span className="material-symbols-outlined text-dark text-[24px]">
                 {s.icon}
               </span>
-              <span className="text-white/60 text-[14px] font-medium">{s.label}</span>
+              <span className="text-dark text-[14px] font-semibold">
+                {s.label}
+              </span>
             </div>
-            <span className="text-gold/20 text-lg">|</span>
+            <span className="text-dark/30 text-lg">|</span>
           </div>
         ))}
       </div>

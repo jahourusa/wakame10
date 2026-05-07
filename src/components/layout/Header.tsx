@@ -6,10 +6,12 @@ import Image from "next/image";
 import { BranchBadge } from "@/components/branch/BranchBadge";
 import { useUIStore } from "@/lib/store/ui-store";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
+import { useOrderModalStore } from "@/lib/store/order-modal-store";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const openDrawer = useUIStore((s) => s.openDrawer);
+  const openMenuDrawer = useUIStore((s) => s.openDrawer);
+  const openCartDrawer = useOrderModalStore((s) => s.openDrawer);
   const cartCount = useCartStore(cartSelectors.count);
   const cartHydrated = useCartStore((s) => s.hasHydrated);
 
@@ -24,7 +26,7 @@ export function Header() {
       id="header"
       className={`fixed top-0 w-full z-50 ${scrolled ? "nav-glass" : "nav-transparent"}`}
     >
-      <div className="flex justify-between items-center px-6 md:px-12 py-5 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center px-6 md:px-12 py-5">
         <Link href="/#hero" className="flex items-center">
           <Image
             src="/logo.png"
@@ -65,8 +67,9 @@ export function Header() {
 
         <div className="flex items-center gap-4">
           <BranchBadge className="hidden md:flex" />
-          <Link
-            href="/cart"
+          <button
+            onClick={() => openCartDrawer("cart")}
+            aria-label="Ouvrir le panier"
             className="hidden lg:flex items-center text-white/50 hover:text-gold transition-colors relative"
           >
             <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
@@ -76,7 +79,7 @@ export function Header() {
             >
               {cartHydrated ? cartCount : 0}
             </span>
-          </Link>
+          </button>
           <Link
             href="/menu"
             className="hidden lg:block btn-gold px-7 py-2.5 rounded-lg font-semibold text-[12px] uppercase tracking-[0.15em]"
@@ -84,7 +87,7 @@ export function Header() {
             Commander
           </Link>
           <button
-            onClick={openDrawer}
+            onClick={openMenuDrawer}
             className="lg:hidden text-gold"
             aria-label="Ouvrir le menu"
           >

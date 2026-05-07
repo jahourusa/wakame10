@@ -63,6 +63,19 @@ function fromMinorUnits(value: string, minor: number): number {
   return Number(value) / Math.pow(10, minor);
 }
 
+/** "Eau gazeuse" -> "Eau Gazeuse"; "SALMON FRESH" -> "Salmon Fresh"; preserves accented chars. */
+function toTitleCase(str: string): string {
+  return str
+    .toLocaleLowerCase("fr-FR")
+    .split(/(\s+)/)
+    .map((part) =>
+      /\s+/.test(part)
+        ? part
+        : part.charAt(0).toLocaleUpperCase("fr-FR") + part.slice(1)
+    )
+    .join("");
+}
+
 function toMoney(prices: WCStorePrices): Money {
   return {
     amount: fromMinorUnits(prices.price, prices.currency_minor_unit),
@@ -74,7 +87,7 @@ function mapProduct(wp: WCStoreProduct): Product {
   return {
     id: String(wp.id),
     slug: wp.slug,
-    name: wp.name,
+    name: toTitleCase(wp.name),
     description: stripHtml(wp.short_description || wp.description),
     price: toMoney(wp.prices),
     images: wp.images.map((img) => ({

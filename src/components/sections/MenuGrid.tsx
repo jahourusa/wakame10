@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useBranchStore } from "@/lib/store/branch-store";
+import { useOrderModalStore } from "@/lib/store/order-modal-store";
 import type { Product, Category } from "@/lib/types/product";
 
 interface Props {
@@ -17,6 +17,7 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const [active, setActive] = useState<string>("all");
   const branch = useBranchStore((s) => s.branch);
   const add = useCartStore((s) => s.add);
+  const openProduct = useOrderModalStore((s) => s.openProduct);
 
   const categories = useMemo(
     () => [
@@ -74,49 +75,47 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3"
+              className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center"
             >
-              <Link
-                href={`/product/${p.slug}`}
+              <button
+                onClick={() => openProduct(p)}
                 aria-label={p.name}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0 z-0 cursor-pointer"
               />
               <Image
                 src={p.images[0]?.src ?? ""}
                 alt={p.images[0]?.alt ?? p.name}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
+                className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
               <div className="absolute top-4 right-4 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg pointer-events-none">
                 {p.price.amount} DH
               </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3 pointer-events-none">
+              <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
                 <h4 className="font-display text-xl text-white">{p.name}</h4>
                 <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
                   {p.description}
                 </p>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    add({
-                      id: p.id,
-                      slug: p.slug,
-                      name: p.name,
-                      price: p.price.amount,
-                      image: p.images[0]?.src ?? "",
-                    });
-                  }}
-                  className="pointer-events-auto relative z-10 w-full py-3 rounded-lg bg-gold/10 border border-gold/20 text-gold font-semibold tracking-[0.1em] text-[10px] uppercase hover:bg-gold hover:text-dark transition-all duration-300 backdrop-blur-sm flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    add_shopping_cart
-                  </span>
-                  Ajouter au panier
-                </button>
               </div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  add({
+                    id: p.id,
+                    slug: p.slug,
+                    name: p.name,
+                    price: p.price.amount,
+                    image: p.images[0]?.src ?? "",
+                  });
+                }}
+                aria-label={`Ajouter ${p.name} au panier`}
+                className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
+              >
+                <span className="material-symbols-outlined text-[22px]">add</span>
+              </button>
             </motion.article>
           ))}
         </AnimatePresence>

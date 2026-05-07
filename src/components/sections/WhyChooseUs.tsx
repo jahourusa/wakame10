@@ -28,7 +28,7 @@ const items = [
 export function WhyChooseUs() {
   return (
     <section className="py-32 md:py-40 bg-dark">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="px-6 md:px-12">
         <Reveal className="mb-16">
           <span className="text-gold text-[10px] uppercase tracking-[0.35em] font-semibold">
             Nos Engagements

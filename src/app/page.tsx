@@ -31,7 +31,7 @@ export default async function Home() {
         <Testimonial />
         <section id="contact" className="py-32 md:py-40 bg-dark">
           <InstagramGrid />
-          <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="px-6 md:px-12">
             <Newsletter />
           </div>
         </section>

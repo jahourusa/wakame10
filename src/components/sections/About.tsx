@@ -13,7 +13,7 @@ export function About() {
       className="py-32 md:py-40 bg-dark-2 relative overflow-hidden"
     >
       <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-gold/[0.02] rounded-full blur-[150px]" />
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+      <div className="px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-0 items-center">
           <Reveal className="lg:col-span-6 relative">
             <div className="aspect-[4/5] rounded-xl overflow-hidden relative">

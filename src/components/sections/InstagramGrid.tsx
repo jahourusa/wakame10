@@ -13,7 +13,7 @@ const tiles = [
 
 export function InstagramGrid() {
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <div className="px-6 md:px-12">
       <Reveal className="text-center mb-14">
         <h3 className="font-display text-3xl md:text-4xl">Suivez notre Univers</h3>
         <p className="text-gold font-semibold tracking-[0.3em] uppercase text-[10px] mt-3">
