@@ -132,7 +132,13 @@ export function CheckoutForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input name="firstName" label="Prenom" required />
             <Input name="lastName" label="Nom" required />
-            <Input name="phone" label="Telephone" type="tel" required />
+            <Input
+              name="phone"
+              label="Telephone"
+              type="tel"
+              required
+              className="md:col-span-2"
+            />
           </div>
         </Section>
 
@@ -241,10 +247,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Input({
   label,
   name,
+  className,
   ...rest
 }: { label: string; name: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label className="block">
+    <label className={`block ${className ?? ""}`}>
       <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">{label}</span>
       <input
         name={name}
