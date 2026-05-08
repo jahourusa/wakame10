@@ -18,6 +18,7 @@ export function FloatingCartButton() {
       {!hidden && (
         <motion.button
           key="floating-cart"
+          id="floating-cart-btn"
           onClick={() => openDrawer("cart")}
           aria-label="Ouvrir le panier"
           initial={{ opacity: 0, scale: 0.6, y: 30 }}

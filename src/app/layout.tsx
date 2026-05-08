@@ -7,6 +7,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { ProductModal } from "@/components/order/ProductModal";
 import { CartDrawer } from "@/components/order/CartDrawer";
 import { FloatingCartButton } from "@/components/order/FloatingCartButton";
+import { FlyToCart } from "@/components/order/FlyToCart";
 import { OrderDataInit } from "@/components/order/OrderDataInit";
 import { getProductsByCategory } from "@/lib/api/products";
 
@@ -67,6 +68,7 @@ export default async function RootLayout({
         <ProductModal />
         <CartDrawer />
         <FloatingCartButton />
+        <FlyToCart />
         <MobileDrawer />
         <MobileBottomNav />
         <BranchModal />

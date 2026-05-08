@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useBranchStore } from "@/lib/store/branch-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
+import { useFlyStore } from "@/lib/store/fly-store";
 import type { Product, Category } from "@/lib/types/product";
 
 interface Props {
@@ -18,6 +19,7 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const branch = useBranchStore((s) => s.branch);
   const add = useCartStore((s) => s.add);
   const openProduct = useOrderModalStore((s) => s.openProduct);
+  const fly = useFlyStore((s) => s.fly);
 
   const categories = useMemo(
     () => [
@@ -103,6 +105,12 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  fly(
+                    rect.left + rect.width / 2,
+                    rect.top + rect.height / 2,
+                    p.images[0]?.src
+                  );
                   add({
                     id: p.id,
                     slug: p.slug,

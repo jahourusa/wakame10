@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
+import { useFlyStore } from "@/lib/store/fly-store";
 import type { Product } from "@/lib/types/product";
 
 interface Props {
@@ -21,6 +22,7 @@ function priorityRank(slug: string): number {
 export function BestSellers({ products }: Props) {
   const add = useCartStore((s) => s.add);
   const openProduct = useOrderModalStore((s) => s.openProduct);
+  const fly = useFlyStore((s) => s.fly);
   const featured = [...products]
     .sort((a, b) => priorityRank(a.category) - priorityRank(b.category))
     .slice(0, 6);
@@ -96,6 +98,12 @@ export function BestSellers({ products }: Props) {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    fly(
+                      rect.left + rect.width / 2,
+                      rect.top + rect.height / 2,
+                      p.images[0]?.src
+                    );
                     add({
                       id: p.id,
                       slug: p.slug,
