@@ -16,7 +16,7 @@ export async function placeOrder(input: CreateOrderInput): Promise<PlaceOrderRes
     return { ok: false, error: "Veuillez choisir un restaurant." };
   }
   const c = input.customer;
-  if (!c.firstName || !c.lastName || !c.email || !c.phone || !c.address) {
+  if (!c.firstName || !c.lastName || !c.phone || !c.address) {
     return { ok: false, error: "Tous les champs obligatoires doivent etre remplis." };
   }
 

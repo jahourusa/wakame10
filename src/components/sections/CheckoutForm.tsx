@@ -81,14 +81,18 @@ export function CheckoutForm() {
     }
 
     const fd = new FormData(e.currentTarget);
+    const phone = String(fd.get("phone") ?? "").trim();
+    const cleanPhone = phone.replace(/\D/g, "") || "guest";
     const customer = {
       firstName: String(fd.get("firstName") ?? "").trim(),
       lastName: String(fd.get("lastName") ?? "").trim(),
-      email: String(fd.get("email") ?? "").trim(),
-      phone: String(fd.get("phone") ?? "").trim(),
+      // WC requires a billing email; we synthesize one from the phone so each
+      // order still has a unique billing identity in WooCommerce admin.
+      email: `${cleanPhone}@wakame.ma`,
+      phone,
       address: String(fd.get("address") ?? "").trim(),
       city: branchMeta.name,
-      zip: String(fd.get("zip") ?? "").trim(),
+      zip: "",
       notes: String(fd.get("notes") ?? "").trim(),
     };
 
@@ -128,7 +132,6 @@ export function CheckoutForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input name="firstName" label="Prenom" required />
             <Input name="lastName" label="Nom" required />
-            <Input name="email" label="Email" type="email" required />
             <Input name="phone" label="Telephone" type="tel" required />
           </div>
         </Section>
@@ -136,15 +139,12 @@ export function CheckoutForm() {
         <Section title="Adresse de livraison">
           <div className="space-y-4">
             <Input name="address" label="Adresse" required />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                name="city"
-                label="Ville"
-                defaultValue={branchMeta?.name ?? ""}
-                readOnly
-              />
-              <Input name="zip" label="Code postal" />
-            </div>
+            <Input
+              name="city"
+              label="Ville"
+              defaultValue={branchMeta?.name ?? ""}
+              readOnly
+            />
             <Textarea name="notes" label="Instructions de livraison (optionnel)" />
           </div>
         </Section>
