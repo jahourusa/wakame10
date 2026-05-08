@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useBranchStore } from "@/lib/store/branch-store";
 import { BRANCHES } from "@/lib/types/branch";
+import { placeOrder } from "@/app/checkout/actions";
 
 const DELIVERY_FEE = 25;
 
@@ -19,9 +20,14 @@ export function CheckoutForm() {
   const total = subtotal + DELIVERY_FEE;
 
   const [pay, setPay] = useState<"cod" | "card">("cod");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<{
+    orderNumber: string;
+    branchName: string;
+  } | null>(null);
 
-  if (submitted) {
+  if (confirmed) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -34,8 +40,11 @@ export function CheckoutForm() {
           </span>
         </div>
         <h2 className="font-display text-4xl">Commande confirmee</h2>
+        <p className="text-gold text-[11px] uppercase tracking-[0.2em]">
+          Numero de commande #{confirmed.orderNumber}
+        </p>
         <p className="text-white/40">
-          Merci. Votre commande sera preparee par le restaurant {branchMeta?.name ?? ""}.
+          Merci. Votre commande sera preparee par le restaurant {confirmed.branchName}.
           Un email de confirmation suit.
         </p>
         <Link
@@ -62,11 +71,51 @@ export function CheckoutForm() {
     );
   }
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: POST to WordPress /wp-json/wc/v3/orders when API is wired
-    setSubmitted(true);
-    clear();
+    setError(null);
+
+    if (!branchMeta) {
+      setError("Veuillez choisir un restaurant avant de commander.");
+      return;
+    }
+
+    const fd = new FormData(e.currentTarget);
+    const customer = {
+      firstName: String(fd.get("firstName") ?? "").trim(),
+      lastName: String(fd.get("lastName") ?? "").trim(),
+      email: String(fd.get("email") ?? "").trim(),
+      phone: String(fd.get("phone") ?? "").trim(),
+      address: String(fd.get("address") ?? "").trim(),
+      city: branchMeta.name,
+      zip: String(fd.get("zip") ?? "").trim(),
+      notes: String(fd.get("notes") ?? "").trim(),
+    };
+
+    setSubmitting(true);
+    try {
+      const result = await placeOrder({
+        branch: { slug: branchMeta.slug, name: branchMeta.name },
+        customer,
+        items,
+        shippingFee: DELIVERY_FEE,
+        paymentMethod: pay,
+      });
+
+      if (result.ok) {
+        setConfirmed({
+          orderNumber: result.orderNumber,
+          branchName: branchMeta.name,
+        });
+        clear();
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -146,12 +195,32 @@ export function CheckoutForm() {
           <Row label="Total" value={`${total} DH`} bold />
         </div>
 
+        {error && (
+          <p className="relative z-10 text-red-400 text-xs leading-relaxed border border-red-400/30 bg-red-400/5 rounded-lg px-4 py-3">
+            {error}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="btn-gold w-full px-7 py-4 rounded-lg font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 relative z-10"
+          disabled={submitting}
+          className="btn-gold w-full px-7 py-4 rounded-lg font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Confirmer la commande
-          <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+          {submitting ? (
+            <>
+              <span className="material-symbols-outlined text-[18px] animate-spin">
+                progress_activity
+              </span>
+              Envoi...
+            </>
+          ) : (
+            <>
+              Confirmer la commande
+              <span className="material-symbols-outlined text-[18px]">
+                arrow_forward
+              </span>
+            </>
+          )}
         </button>
       </aside>
     </form>
