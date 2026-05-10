@@ -14,6 +14,20 @@ interface Props {
   initialCategories: Category[];
 }
 
+// Maps each WooCommerce category slug to a Material Symbols icon.
+// Add new entries here whenever a new category is added in WP.
+const CATEGORY_ICONS: Record<string, string> = {
+  all: "restaurant_menu",
+  "assortiments-medium": "set_meal",
+  bentos: "lunch_dining",
+  "boissons-froides": "local_bar",
+  salades: "eco",
+  soupes: "ramen_dining",
+  tacos: "restaurant",
+};
+
+const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
+
 export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const [active, setActive] = useState<string>("all");
   const branch = useBranchStore((s) => s.branch);
@@ -47,93 +61,151 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   }
 
   return (
-    <div className="space-y-12">
-      <div className="flex flex-wrap gap-3 justify-center">
-        {categories.map((c) => {
-          const isActive = active === c.slug;
-          return (
-            <button
-              key={c.slug}
-              onClick={() => setActive(c.slug)}
-              className={`px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.15em] font-semibold transition-all ${
-                isActive
-                  ? "bg-gold text-dark shadow-gold"
-                  : "bg-dark-3 text-white/50 border border-white/5 hover:text-gold hover:border-gold/30"
-              }`}
-            >
-              {c.name}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((p) => (
-            <motion.article
-              key={p.id}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center"
-            >
+    <div>
+      {/* MOBILE/TABLET — Horizontal sticky filter bar */}
+      <div className="lg:hidden sticky top-20 z-30 -mx-6 md:-mx-12 px-6 md:px-12 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
+        <div
+          className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {categories.map((c) => {
+            const isActive = active === c.slug;
+            return (
               <button
-                onClick={() => openProduct(p)}
-                aria-label={p.name}
-                className="absolute inset-0 z-0 cursor-pointer"
-              />
-              <Image
-                src={p.images[0]?.src ?? ""}
-                alt={p.images[0]?.alt ?? p.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
-              <div className="absolute top-4 right-4 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg pointer-events-none">
-                {p.price.amount} DH
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
-                <h4 className="font-display text-xl text-white">{p.name}</h4>
-                <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
-                  {p.description}
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  fly(
-                    rect.left + rect.width / 2,
-                    rect.top + rect.height / 2,
-                    p.images[0]?.src
-                  );
-                  add({
-                    id: p.id,
-                    slug: p.slug,
-                    name: p.name,
-                    price: p.price.amount,
-                    image: p.images[0]?.src ?? "",
-                  });
-                }}
-                aria-label={`Ajouter ${p.name} au panier`}
-                className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
+                key={c.slug}
+                onClick={() => setActive(c.slug)}
+                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.12em] font-semibold transition-all ${
+                  isActive
+                    ? "bg-gold text-dark shadow-gold"
+                    : "bg-dark-3 text-white/60 border border-white/5"
+                }`}
               >
-                <span className="material-symbols-outlined text-[22px]">add</span>
+                <span className="material-symbols-outlined text-[16px]">
+                  {iconFor(c.slug)}
+                </span>
+                {c.name}
               </button>
-            </motion.article>
-          ))}
-        </AnimatePresence>
+            );
+          })}
+        </div>
       </div>
 
-      {filtered.length === 0 && (
-        <p className="text-center text-white/30 text-xs uppercase tracking-[0.2em] py-12">
-          Aucun produit pour cette categorie.
-        </p>
-      )}
+      {/* DESKTOP — Sidebar + Grid */}
+      <div className="lg:grid lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] lg:gap-12">
+        {/* Sidebar (desktop only) */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-32">
+            <p className="text-gold text-[10px] uppercase tracking-[0.3em] font-semibold mb-5 px-3">
+              Categories
+            </p>
+            <nav className="flex flex-col gap-1">
+              {categories.map((c) => {
+                const isActive = active === c.slug;
+                return (
+                  <button
+                    key={c.slug}
+                    onClick={() => setActive(c.slug)}
+                    className={`group flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all ${
+                      isActive
+                        ? "bg-gold/10 text-gold"
+                        : "text-white/55 hover:text-gold hover:bg-white/5"
+                    }`}
+                  >
+                    <span
+                      className={`material-symbols-outlined text-[20px] transition-colors ${
+                        isActive ? "text-gold" : "text-white/30 group-hover:text-gold"
+                      }`}
+                    >
+                      {iconFor(c.slug)}
+                    </span>
+                    <span className="text-sm font-medium tracking-wide flex-1">
+                      {c.name}
+                    </span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="active-cat-dot"
+                        className="w-1.5 h-1.5 rounded-full bg-gold"
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Product grid */}
+        <div className="min-w-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((p) => (
+                <motion.article
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center"
+                >
+                  <button
+                    onClick={() => openProduct(p)}
+                    aria-label={p.name}
+                    className="absolute inset-0 z-0 cursor-pointer"
+                  />
+                  <Image
+                    src={p.images[0]?.src ?? ""}
+                    alt={p.images[0]?.alt ?? p.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
+                  <div className="absolute top-4 right-4 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg pointer-events-none">
+                    {p.price.amount} DH
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
+                    <h4 className="font-display text-xl text-white">{p.name}</h4>
+                    <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
+                      {p.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      fly(
+                        rect.left + rect.width / 2,
+                        rect.top + rect.height / 2,
+                        p.images[0]?.src
+                      );
+                      add({
+                        id: p.id,
+                        slug: p.slug,
+                        name: p.name,
+                        price: p.price.amount,
+                        image: p.images[0]?.src ?? "",
+                      });
+                    }}
+                    aria-label={`Ajouter ${p.name} au panier`}
+                    className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-[22px]">add</span>
+                  </button>
+                </motion.article>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {filtered.length === 0 && (
+            <p className="text-center text-white/30 text-xs uppercase tracking-[0.2em] py-16">
+              Aucun produit pour cette categorie.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

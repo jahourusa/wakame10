@@ -52,10 +52,10 @@ export default async function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         />
-        {/* Strip attributes injected by browser extensions (Bitdefender, ColorZilla, Grammarly...) before React hydrates, so they don't cause hydration mismatch warnings. */}
+        {/* Strip attributes injected by browser extensions (Bitdefender, ColorZilla, Grammarly, retriever/automation tools, ...) before React hydrates, so they don't cause hydration mismatch warnings. Matches both exact names and known prefixes. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var A=['bis_skin_checked','bis_register','__processed','cz-shortcut-listen','data-gramm','data-gramm_editor','data-enable-grammarly'];function strip(){A.forEach(function(a){document.querySelectorAll('['+a+']').forEach(function(e){e.removeAttribute(a)})})}strip();try{new MutationObserver(strip).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:A})}catch(e){}})();`,
+            __html: `(function(){var EX=['bis_skin_checked','bis_register','cz-shortcut-listen','data-gramm','data-gramm_editor','data-enable-grammarly'];var PX=['rtrvr-','__processed','data-bis-','data-extension-','bis-'];function shouldStrip(n){if(EX.indexOf(n)!==-1)return true;for(var i=0;i<PX.length;i++)if(n.indexOf(PX[i])===0)return true;return false;}function stripEl(el){if(!el||!el.attributes)return;var rm=[];for(var i=0;i<el.attributes.length;i++){var n=el.attributes[i].name;if(shouldStrip(n))rm.push(n);}rm.forEach(function(n){el.removeAttribute(n);});}function stripAll(){stripEl(document.documentElement);var a=document.getElementsByTagName('*');for(var i=0;i<a.length;i++)stripEl(a[i]);}stripAll();try{new MutationObserver(function(ms){ms.forEach(function(m){stripEl(m.target);});}).observe(document.documentElement,{subtree:true,attributes:true});}catch(e){}})();`,
           }}
         />
       </head>
