@@ -69,8 +69,8 @@ export function CartDrawer() {
     drawerStep === "cart"
       ? "Votre Panier"
       : drawerStep === "salades"
-        ? "Salades & Soupes"
-        : "Boissons";
+        ? "Salades, Soupes & Desserts"
+        : "Boissons & Jus";
 
   const total = subtotal + (drawerStep === "boissons" ? DELIVERY_FEE : 0);
 
@@ -295,8 +295,8 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
     <div className="p-5">
       <p className="text-center text-white/50 text-sm mb-5 font-display italic">
         {step === "salades"
-          ? "Completez votre commande"
-          : "Une boisson pour accompagner ?"}
+          ? "Completez votre festin"
+          : "Que voulez-vous boire ?"}
       </p>
       <div className="grid grid-cols-2 gap-4">
         {products.map((p) => {

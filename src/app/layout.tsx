@@ -39,10 +39,12 @@ export default async function RootLayout({
 }) {
   // Pre-fetch upsell categories server-side. Underlying call is a single
   // /products fetch deduplicated by Next; ISR cache is shared across pages.
-  const [salades, soupes, boissons] = await Promise.all([
+  const [salades, soupes, desserts, boissons, jus] = await Promise.all([
     getProductsByCategory("salades", { revalidate: 300 }),
     getProductsByCategory("soupes", { revalidate: 300 }),
+    getProductsByCategory("desserts", { revalidate: 300 }),
     getProductsByCategory("boissons-froides", { revalidate: 300 }),
+    getProductsByCategory("jus", { revalidate: 300 }),
   ]);
 
   return (
@@ -64,7 +66,10 @@ export default async function RootLayout({
         className="bg-dark text-white font-body antialiased selection:bg-gold/30 selection:text-white"
       >
         {children}
-        <OrderDataInit salades={[...salades, ...soupes]} boissons={boissons} />
+        <OrderDataInit
+          salades={[...salades, ...soupes, ...desserts]}
+          boissons={[...boissons, ...jus]}
+        />
         <ProductModal />
         <CartDrawer />
         <FloatingCartButton />

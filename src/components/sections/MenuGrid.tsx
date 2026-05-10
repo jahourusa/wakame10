@@ -18,12 +18,29 @@ interface Props {
 // Add new entries here whenever a new category is added in WP.
 const CATEGORY_ICONS: Record<string, string> = {
   all: "restaurant_menu",
+  assortiments: "dinner_dining",
   "assortiments-medium": "set_meal",
   bentos: "lunch_dining",
   "boissons-froides": "local_bar",
+  "california-rolls": "rice_bowl",
+  "crispy-rolls": "bakery_dining",
+  "crunchy-rolls": "cookie",
+  desserts: "cake",
+  jus: "local_drink",
+  large: "takeout_dining",
+  medium: "restaurant",
+  "nori-rolls": "rice_bowl",
+  "poke-bowl": "ramen_dining",
+  premium: "workspace_premium",
   salades: "eco",
-  soupes: "ramen_dining",
+  small: "breakfast_dining",
+  soupes: "soup_kitchen",
+  "special-rolls": "auto_awesome",
+  "spring-roll": "kebab_dining",
+  "sushi-pizza": "local_pizza",
   tacos: "restaurant",
+  "tanuki-rolls": "ramen_dining",
+  "x-large": "dinner_dining",
 };
 
 const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
