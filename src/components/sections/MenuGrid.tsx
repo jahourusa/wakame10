@@ -50,6 +50,11 @@ const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 const PRIORITY_FIRST = ["all", "small", "medium", "large", "x-large"];
 const PRIORITY_LAST = ["jus", "desserts"];
 
+// Same ordering applied to products themselves when "Tout" is selected,
+// so the unified view groups assortiment sizes first and pushes jus to the end.
+const PRODUCT_CATEGORY_FIRST = ["small", "medium", "large", "x-large"];
+const PRODUCT_CATEGORY_LAST = ["jus"];
+
 function sortCategories<T extends { slug: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
     const aF = PRIORITY_FIRST.indexOf(a.slug);
@@ -60,6 +65,24 @@ function sortCategories<T extends { slug: string }>(list: T[]): T[] {
 
     const aL = PRIORITY_LAST.indexOf(a.slug);
     const bL = PRIORITY_LAST.indexOf(b.slug);
+    if (aL !== -1 && bL !== -1) return aL - bL;
+    if (aL !== -1) return 1;
+    if (bL !== -1) return -1;
+
+    return 0;
+  });
+}
+
+function sortProductsByCategory<T extends { category: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const aF = PRODUCT_CATEGORY_FIRST.indexOf(a.category);
+    const bF = PRODUCT_CATEGORY_FIRST.indexOf(b.category);
+    if (aF !== -1 && bF !== -1) return aF - bF;
+    if (aF !== -1) return -1;
+    if (bF !== -1) return 1;
+
+    const aL = PRODUCT_CATEGORY_LAST.indexOf(a.category);
+    const bL = PRODUCT_CATEGORY_LAST.indexOf(b.category);
     if (aL !== -1 && bL !== -1) return aL - bL;
     if (aL !== -1) return 1;
     if (bL !== -1) return -1;
@@ -85,12 +108,13 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   );
 
   const filtered = useMemo(() => {
-    return initialProducts.filter((p) => {
+    const f = initialProducts.filter((p) => {
       const branchOk =
         !branch || p.branchSlugs.length === 0 || p.branchSlugs.includes(branch);
       const catOk = active === "all" || p.category === active;
       return branchOk && catOk;
     });
+    return active === "all" ? sortProductsByCategory(f) : f;
   }, [initialProducts, active, branch]);
 
   if (initialProducts.length === 0) {
