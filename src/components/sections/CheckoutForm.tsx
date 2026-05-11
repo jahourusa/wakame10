@@ -183,8 +183,22 @@ export function CheckoutForm() {
         <ul className="space-y-3 relative z-10 max-h-[260px] overflow-y-auto pr-1">
           {items.map((it) => (
             <li key={it.id} className="flex gap-3 items-center">
-              <div className="relative w-12 h-12 rounded-md overflow-hidden shrink-0">
-                <Image src={it.image} alt={it.name} fill sizes="48px" className="object-cover" />
+              <div className="relative w-12 h-12 rounded-md overflow-hidden shrink-0 bg-dark-3">
+                {it.image ? (
+                  <Image
+                    src={it.image}
+                    alt={it.name}
+                    fill
+                    sizes="48px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-white/30">
+                    <span className="material-symbols-outlined text-[16px]">
+                      restaurant
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm truncate">{it.name}</p>

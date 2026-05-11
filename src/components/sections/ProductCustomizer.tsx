@@ -35,14 +35,20 @@ export function ProductCustomizer({ product, onAdded }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
       <div className="relative aspect-square rounded-2xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center">
-        <Image
-          src={product.images[0]?.src ?? ""}
-          alt={product.images[0]?.alt ?? product.name}
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-contain p-8"
-        />
+        {product.images[0]?.src ? (
+          <Image
+            src={product.images[0].src}
+            alt={product.images[0].alt ?? product.name}
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-contain p-8"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-white/20">
+            <span className="material-symbols-outlined text-[120px]">restaurant</span>
+          </div>
+        )}
         <div className="absolute top-5 left-5 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg">
           {product.price.amount} DH
         </div>

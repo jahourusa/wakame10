@@ -63,13 +63,21 @@ export function BestSellers({ products }: Props) {
                   aria-label={p.name}
                   className="absolute inset-0 z-0 cursor-pointer"
                 />
-                <Image
-                  src={p.images[0]?.src ?? ""}
-                  alt={p.images[0]?.alt ?? p.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
-                />
+                {p.images[0]?.src ? (
+                  <Image
+                    src={p.images[0].src}
+                    alt={p.images[0].alt ?? p.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-white/20 pointer-events-none">
+                    <span className="material-symbols-outlined text-[64px]">
+                      restaurant
+                    </span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
 
                 <div

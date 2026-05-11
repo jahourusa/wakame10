@@ -225,13 +225,21 @@ function CartItemsList({
             className="flex gap-4 p-5"
           >
             <div className="relative w-16 h-16 shrink-0 rounded-md overflow-hidden bg-[url('/background.webp')] bg-cover bg-center">
-              <Image
-                src={it.image}
-                alt={it.name}
-                fill
-                sizes="64px"
-                className="object-contain p-1"
-              />
+              {it.image ? (
+                <Image
+                  src={it.image}
+                  alt={it.name}
+                  fill
+                  sizes="64px"
+                  className="object-contain p-1"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-white/30">
+                  <span className="material-symbols-outlined text-[20px]">
+                    restaurant
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between gap-2">
@@ -308,13 +316,21 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
                   present ? "ring-2 ring-gold ring-offset-2 ring-offset-dark-2" : ""
                 }`}
               >
-                <Image
-                  src={p.images[0]?.src ?? ""}
-                  alt={p.images[0]?.alt ?? p.name}
-                  fill
-                  sizes="200px"
-                  className="object-contain p-3"
-                />
+                {p.images[0]?.src ? (
+                  <Image
+                    src={p.images[0].src}
+                    alt={p.images[0].alt ?? p.name}
+                    fill
+                    sizes="200px"
+                    className="object-contain p-3"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-white/20">
+                    <span className="material-symbols-outlined text-[40px]">
+                      restaurant
+                    </span>
+                  </div>
+                )}
                 <button
                   onClick={() =>
                     present
