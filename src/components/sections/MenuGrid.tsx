@@ -45,6 +45,29 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 
+// Ordering: assortiment sizes first (after "Tout"), middle stays as-is,
+// jus & desserts pushed to the end.
+const PRIORITY_FIRST = ["all", "small", "medium", "large", "x-large"];
+const PRIORITY_LAST = ["jus", "desserts"];
+
+function sortCategories<T extends { slug: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const aF = PRIORITY_FIRST.indexOf(a.slug);
+    const bF = PRIORITY_FIRST.indexOf(b.slug);
+    if (aF !== -1 && bF !== -1) return aF - bF;
+    if (aF !== -1) return -1;
+    if (bF !== -1) return 1;
+
+    const aL = PRIORITY_LAST.indexOf(a.slug);
+    const bL = PRIORITY_LAST.indexOf(b.slug);
+    if (aL !== -1 && bL !== -1) return aL - bL;
+    if (aL !== -1) return 1;
+    if (bL !== -1) return -1;
+
+    return 0;
+  });
+}
+
 export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const [active, setActive] = useState<string>("all");
   const branch = useBranchStore((s) => s.branch);
@@ -53,10 +76,11 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const fly = useFlyStore((s) => s.fly);
 
   const categories = useMemo(
-    () => [
-      { slug: "all", name: "Tout" },
-      ...initialCategories.map((c) => ({ slug: c.slug, name: c.name })),
-    ],
+    () =>
+      sortCategories([
+        { slug: "all", name: "Tout" },
+        ...initialCategories.map((c) => ({ slug: c.slug, name: c.name })),
+      ]),
     [initialCategories]
   );
 
