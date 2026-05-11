@@ -155,8 +155,11 @@ export async function getCategories(
     `${STORE_BASE}/products/categories?per_page=100`,
     { revalidate: opts.revalidate ?? 300 }
   );
+  // Hide empty categories and the default WooCommerce "Uncategorized" bucket
+  // so they don't clutter the sidebar.
+  const HIDDEN_SLUGS = new Set(["uncategorized", "non-classe", "non-classifie"]);
   return list
-    .filter((c) => (c.count ?? 0) > 0 || true)
+    .filter((c) => (c.count ?? 0) > 0 && !HIDDEN_SLUGS.has(c.slug))
     .map((c) => ({
       id: String(c.id),
       slug: c.slug,
