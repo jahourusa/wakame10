@@ -70,7 +70,7 @@ export function CartDrawer() {
       ? "Votre Panier"
       : drawerStep === "salades"
         ? "Salades, Soupes & Desserts"
-        : "Boissons & Jus";
+        : "Boissons";
 
   const total = subtotal + (drawerStep === "boissons" ? DELIVERY_FEE : 0);
 

@@ -18,41 +18,58 @@ interface Props {
 // Add new entries here whenever a new category is added in WP.
 const CATEGORY_ICONS: Record<string, string> = {
   all: "restaurant_menu",
-  assortiments: "dinner_dining",
-  "assortiments-medium": "set_meal",
+  "small-assortiments": "breakfast_dining",
+  "medium-assortiments": "restaurant",
+  "large-assortiments": "takeout_dining",
+  "x-large-assortiments": "dinner_dining",
+  "base-de-salades": "eco",
   bentos: "lunch_dining",
-  "boissons-froides": "local_bar",
   "california-rolls": "rice_bowl",
   "crispy-rolls": "bakery_dining",
   "crunchy-rolls": "cookie",
   desserts: "cake",
+  garnitures: "rice_bowl",
   jus: "local_drink",
-  large: "takeout_dining",
-  medium: "restaurant",
+  "les-plats": "dinner_dining",
+  "les-salades": "eco",
+  "les-soupes": "soup_kitchen",
+  "les-tapas": "tapas",
   "nori-rolls": "rice_bowl",
+  nouilles: "ramen_dining",
   "poke-bowl": "ramen_dining",
   premium: "workspace_premium",
-  salades: "eco",
-  small: "breakfast_dining",
-  soupes: "soup_kitchen",
+  proteines: "egg",
+  riz: "rice_bowl",
   "special-rolls": "auto_awesome",
   "spring-roll": "kebab_dining",
   "sushi-pizza": "local_pizza",
   tacos: "restaurant",
   "tanuki-rolls": "ramen_dining",
-  "x-large": "dinner_dining",
+  woks: "skillet",
+  yaki: "outdoor_grill",
 };
 
 const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 
 // Ordering: assortiment sizes first (after "Tout"), middle stays as-is,
 // jus & desserts pushed to the end.
-const PRIORITY_FIRST = ["all", "small", "medium", "large", "x-large"];
+const PRIORITY_FIRST = [
+  "all",
+  "small-assortiments",
+  "medium-assortiments",
+  "large-assortiments",
+  "x-large-assortiments",
+];
 const PRIORITY_LAST = ["jus", "desserts"];
 
 // Same ordering applied to products themselves when "Tout" is selected,
 // so the unified view groups assortiment sizes first and pushes jus to the end.
-const PRODUCT_CATEGORY_FIRST = ["small", "medium", "large", "x-large"];
+const PRODUCT_CATEGORY_FIRST = [
+  "small-assortiments",
+  "medium-assortiments",
+  "large-assortiments",
+  "x-large-assortiments",
+];
 const PRODUCT_CATEGORY_LAST = ["jus"];
 
 function sortCategories<T extends { slug: string }>(list: T[]): T[] {
