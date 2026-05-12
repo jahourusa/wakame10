@@ -104,13 +104,49 @@ function mapProduct(wp: WCStoreProduct): Product {
 }
 
 const STORE_BASE = "/wp-json/wc/store/v1";
+const PER_PAGE = 100;
+const MAX_PAGES = 10; // safety cap; 10 * 100 = 1000 products
 
+/**
+ * Fetches every product across all WC Store API pages. Uses the X-WP-TotalPages
+ * response header (the API caps `per_page` at 100, so a single request only
+ * covers the first 100 products even though we ask for more).
+ */
 export async function getProducts(opts: { revalidate?: number } = {}): Promise<Product[]> {
-  if (!process.env.NEXT_PUBLIC_API_BASE) return [];
-  const list = await apiFetch<WCStoreProduct[]>(`${STORE_BASE}/products?per_page=100`, {
-    revalidate: opts.revalidate ?? 60,
-  });
-  return list.map(mapProduct);
+  const base = process.env.NEXT_PUBLIC_API_BASE;
+  if (!base) return [];
+
+  const revalidate = opts.revalidate ?? 60;
+
+  // First page — also reads X-WP-TotalPages so we know how many more to fetch.
+  const firstRes = await fetch(
+    `${base}${STORE_BASE}/products?per_page=${PER_PAGE}&page=1`,
+    { next: { revalidate } }
+  );
+  if (!firstRes.ok) return [];
+
+  const firstBatch = (await firstRes.json()) as WCStoreProduct[];
+  const totalPages = Math.min(
+    Number(firstRes.headers.get("X-WP-TotalPages") ?? "1") || 1,
+    MAX_PAGES
+  );
+
+  if (totalPages <= 1) return firstBatch.map(mapProduct);
+
+  // Remaining pages fetched in parallel.
+  const restPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, i) =>
+      fetch(
+        `${base}${STORE_BASE}/products?per_page=${PER_PAGE}&page=${i + 2}`,
+        { next: { revalidate } }
+      )
+        .then((r) => (r.ok ? (r.json() as Promise<WCStoreProduct[]>) : []))
+        .catch(() => [] as WCStoreProduct[])
+    )
+  );
+
+  const all = firstBatch.concat(...restPages);
+  return all.map(mapProduct);
 }
 
 export async function getProductsByBranch(
