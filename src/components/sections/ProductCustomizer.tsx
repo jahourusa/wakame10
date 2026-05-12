@@ -33,7 +33,7 @@ export function ProductCustomizer({ product, onAdded }: Props) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
       <div className="relative aspect-square rounded-2xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center">
         {product.images[0]?.src ? (
           <Image
@@ -41,8 +41,9 @@ export function ProductCustomizer({ product, onAdded }: Props) {
             alt={product.images[0].alt ?? product.name}
             fill
             priority
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-contain p-8"
+            quality={95}
+            sizes="(max-width: 1024px) 90vw, 600px"
+            className="object-contain p-4"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-white/20">
@@ -54,14 +55,31 @@ export function ProductCustomizer({ product, onAdded }: Props) {
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-7">
         <div>
           <span className="text-gold text-[10px] uppercase tracking-[0.35em] font-semibold">
             Notre Creation
           </span>
           <h1 className="font-display text-4xl md:text-5xl mt-3">{product.name}</h1>
           <div className="gold-line mt-6" />
-          <p className="text-white/50 mt-6 leading-relaxed">{product.description}</p>
+
+          {product.shortDescription && (
+            <div className="mt-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/20 bg-gold/5">
+              <span className="material-symbols-outlined text-gold text-[16px]">
+                local_fire_department
+              </span>
+              <span className="text-gold text-[11px] font-semibold tracking-wide">
+                {product.shortDescription}
+              </span>
+            </div>
+          )}
+
+          {product.description &&
+            product.description !== product.shortDescription && (
+              <p className="text-white/55 mt-5 leading-relaxed text-[15px]">
+                {product.description}
+              </p>
+            )}
         </div>
 
         <div className="bg-dark-3 border border-white/[0.04] rounded-2xl p-7 space-y-6 relative overflow-hidden">

@@ -84,11 +84,14 @@ function toMoney(prices: WCStorePrices): Money {
 }
 
 function mapProduct(wp: WCStoreProduct): Product {
+  const desc = stripHtml(wp.description);
+  const shortDesc = stripHtml(wp.short_description);
   return {
     id: String(wp.id),
     slug: wp.slug,
     name: toTitleCase(wp.name),
-    description: stripHtml(wp.short_description || wp.description),
+    description: desc || shortDesc,
+    shortDescription: shortDesc,
     price: toMoney(wp.prices),
     images: wp.images.map((img) => ({
       src: img.src,

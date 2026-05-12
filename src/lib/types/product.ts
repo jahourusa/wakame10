@@ -20,6 +20,8 @@ export interface Product {
   slug: string;
   name: string;
   description: string;
+  /** Brief blurb from WC short_description — typically nutritional info (e.g. "540.1 kcal"). */
+  shortDescription: string;
   price: Money;
   images: ProductImage[];
   category: string;

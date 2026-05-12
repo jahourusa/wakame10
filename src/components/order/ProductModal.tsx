@@ -51,7 +51,7 @@ export function ProductModal() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 60, opacity: 0 }}
             transition={{ duration: 0.5, ease: easing }}
-            className="relative w-full md:w-[90vw] max-w-5xl max-h-[92vh] overflow-y-auto bg-dark-2 border border-gold/10 rounded-t-3xl md:rounded-3xl shadow-2xl"
+            className="relative w-full md:w-[92vw] max-w-6xl max-h-[94vh] overflow-y-auto bg-dark-2 border border-gold/10 rounded-t-3xl md:rounded-3xl shadow-2xl"
           >
             <button
               onClick={closeProduct}
