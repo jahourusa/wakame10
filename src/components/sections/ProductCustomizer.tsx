@@ -41,8 +41,8 @@ export function ProductCustomizer({ product, onAdded }: Props) {
             alt={product.images[0].alt ?? product.name}
             fill
             priority
-            quality={95}
-            sizes="(max-width: 1024px) 90vw, 600px"
+            quality={100}
+            sizes="(max-width: 1024px) 100vw, 900px"
             className="object-contain p-4"
           />
         ) : (
