@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useBranchStore } from "@/lib/store/branch-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
@@ -15,9 +15,7 @@ interface Props {
 }
 
 // Maps each WooCommerce category slug to a Material Symbols icon.
-// Add new entries here whenever a new category is added in WP.
 const CATEGORY_ICONS: Record<string, string> = {
-  all: "restaurant_menu",
   "small-assortiments": "breakfast_dining",
   "medium-assortiments": "restaurant",
   "large-assortiments": "takeout_dining",
@@ -55,26 +53,14 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 
-// Ordering: assortiment sizes first (after "Tout"), middle stays as-is,
-// jus & desserts pushed to the end.
+// Assortiment sizes first, jus + desserts last, others in WP order.
 const PRIORITY_FIRST = [
-  "all",
   "small-assortiments",
   "medium-assortiments",
   "large-assortiments",
   "x-large-assortiments",
 ];
 const PRIORITY_LAST = ["jus", "desserts"];
-
-// Same ordering applied to products themselves when "Tout" is selected,
-// so the unified view groups assortiment sizes first and pushes jus to the end.
-const PRODUCT_CATEGORY_FIRST = [
-  "small-assortiments",
-  "medium-assortiments",
-  "large-assortiments",
-  "x-large-assortiments",
-];
-const PRODUCT_CATEGORY_LAST = ["jus"];
 
 function sortCategories<T extends { slug: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
@@ -94,49 +80,55 @@ function sortCategories<T extends { slug: string }>(list: T[]): T[] {
   });
 }
 
-function sortProductsByCategory<T extends { category: string }>(list: T[]): T[] {
-  return [...list].sort((a, b) => {
-    const aF = PRODUCT_CATEGORY_FIRST.indexOf(a.category);
-    const bF = PRODUCT_CATEGORY_FIRST.indexOf(b.category);
-    if (aF !== -1 && bF !== -1) return aF - bF;
-    if (aF !== -1) return -1;
-    if (bF !== -1) return 1;
-
-    const aL = PRODUCT_CATEGORY_LAST.indexOf(a.category);
-    const bL = PRODUCT_CATEGORY_LAST.indexOf(b.category);
-    if (aL !== -1 && bL !== -1) return aL - bL;
-    if (aL !== -1) return 1;
-    if (bL !== -1) return -1;
-
-    return 0;
-  });
-}
+const sectionId = (slug: string) => `cat-${slug}`;
 
 export function MenuGrid({ initialProducts, initialCategories }: Props) {
-  const [active, setActive] = useState<string>("all");
   const branch = useBranchStore((s) => s.branch);
-  const add = useCartStore((s) => s.add);
-  const openProduct = useOrderModalStore((s) => s.openProduct);
-  const fly = useFlyStore((s) => s.fly);
 
-  const categories = useMemo(
-    () =>
-      sortCategories([
-        { slug: "all", name: "Tout" },
-        ...initialCategories.map((c) => ({ slug: c.slug, name: c.name })),
-      ]),
-    [initialCategories]
-  );
+  const categories = useMemo(() => sortCategories(initialCategories), [initialCategories]);
 
-  const filtered = useMemo(() => {
-    const f = initialProducts.filter((p) => {
+  // Group products by category, filtered by current branch.
+  const productsByCat = useMemo(() => {
+    const map: Record<string, Product[]> = {};
+    for (const p of initialProducts) {
       const branchOk =
         !branch || p.branchSlugs.length === 0 || p.branchSlugs.includes(branch);
-      const catOk = active === "all" || p.category === active;
-      return branchOk && catOk;
-    });
-    return active === "all" ? sortProductsByCategory(f) : f;
-  }, [initialProducts, active, branch]);
+      if (!branchOk) continue;
+      (map[p.category] = map[p.category] ?? []).push(p);
+    }
+    return map;
+  }, [initialProducts, branch]);
+
+  // Track which category section is currently visible — for sidebar highlight.
+  const [active, setActive] = useState<string>(categories[0]?.slug ?? "");
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Pick the entry closest to the top that's actually intersecting.
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) {
+          const slug = visible[0].target.id.replace(/^cat-/, "");
+          setActive(slug);
+        }
+      },
+      {
+        // Activate a section as it crosses the top quarter of the viewport.
+        rootMargin: "-25% 0px -65% 0px",
+        threshold: 0,
+      }
+    );
+    Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, [categories]);
+
+  const scrollTo = useCallback((slug: string) => {
+    const el = document.getElementById(sectionId(slug));
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   if (initialProducts.length === 0) {
     return (
@@ -148,7 +140,7 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
 
   return (
     <div>
-      {/* MOBILE/TABLET — Horizontal sticky filter bar */}
+      {/* MOBILE/TABLET — Horizontal sticky nav bar */}
       <div className="lg:hidden sticky top-20 z-30 -mx-6 md:-mx-12 px-6 md:px-12 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
         <div
           className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
@@ -159,7 +151,7 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
             return (
               <button
                 key={c.slug}
-                onClick={() => setActive(c.slug)}
+                onClick={() => scrollTo(c.slug)}
                 className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.12em] font-semibold transition-all ${
                   isActive
                     ? "bg-gold text-dark shadow-gold"
@@ -176,21 +168,20 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
         </div>
       </div>
 
-      {/* DESKTOP — Sidebar + Grid */}
+      {/* DESKTOP — Sidebar + stacked sections */}
       <div className="lg:grid lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] lg:gap-12">
-        {/* Sidebar (desktop only) */}
         <aside className="hidden lg:block">
-          <div className="sticky top-32">
+          <div className="sticky top-32 max-h-[calc(100vh-10rem)] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
             <p className="text-gold text-[10px] uppercase tracking-[0.3em] font-semibold mb-5 px-3">
               Categories
             </p>
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1 pb-6">
               {categories.map((c) => {
                 const isActive = active === c.slug;
                 return (
                   <button
                     key={c.slug}
-                    onClick={() => setActive(c.slug)}
+                    onClick={() => scrollTo(c.slug)}
                     className={`group flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all ${
                       isActive
                         ? "bg-gold/10 text-gold"
@@ -221,85 +212,105 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
           </div>
         </aside>
 
-        {/* Product grid */}
-        <div className="min-w-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((p) => (
-                <motion.article
-                  key={p.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center"
-                >
-                  <button
-                    onClick={() => openProduct(p)}
-                    aria-label={p.name}
-                    className="absolute inset-0 z-0 cursor-pointer"
-                  />
-                  {p.images[0]?.src ? (
-                    <Image
-                      src={p.images[0].src}
-                      alt={p.images[0].alt ?? p.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-white/20 pointer-events-none">
-                      <span className="material-symbols-outlined text-[64px]">
-                        restaurant
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
-                  <div className="absolute top-4 right-4 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg pointer-events-none">
-                    {p.price.amount} DH
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
-                    <h4 className="font-display text-xl text-white">{p.name}</h4>
-                    <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
-                      {p.description}
+        {/* Stacked category sections */}
+        <div className="min-w-0 space-y-20">
+          {categories.map((cat) => {
+            const products = productsByCat[cat.slug];
+            if (!products || products.length === 0) return null;
+            return (
+              <section
+                key={cat.slug}
+                id={sectionId(cat.slug)}
+                ref={(el) => {
+                  sectionRefs.current[cat.slug] = el;
+                }}
+                className="scroll-mt-32"
+              >
+                <header className="mb-8">
+                  <h2 className="font-display text-3xl md:text-5xl uppercase tracking-wide">
+                    {cat.name}
+                  </h2>
+                  {cat.description && (
+                    <p className="text-white/55 mt-4 max-w-3xl leading-relaxed">
+                      {cat.description}
                     </p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      fly(
-                        rect.left + rect.width / 2,
-                        rect.top + rect.height / 2,
-                        p.images[0]?.src
-                      );
-                      add({
-                        id: p.id,
-                        slug: p.slug,
-                        name: p.name,
-                        price: p.price.amount,
-                        image: p.images[0]?.src ?? "",
-                      });
-                    }}
-                    aria-label={`Ajouter ${p.name} au panier`}
-                    className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
-                  >
-                    <span className="material-symbols-outlined text-[22px]">add</span>
-                  </button>
-                </motion.article>
-              ))}
-            </AnimatePresence>
-          </div>
+                  )}
+                </header>
 
-          {filtered.length === 0 && (
-            <p className="text-center text-white/30 text-xs uppercase tracking-[0.2em] py-16">
-              Aucun produit pour cette categorie.
-            </p>
-          )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {products.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
     </div>
+  );
+}
+
+// ----- Product card ---------------------------------------------------------
+
+function ProductCard({ product: p }: { product: Product }) {
+  const add = useCartStore((s) => s.add);
+  const openProduct = useOrderModalStore((s) => s.openProduct);
+  const fly = useFlyStore((s) => s.fly);
+
+  return (
+    <article className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3 bg-[url('/background.webp')] bg-cover bg-center">
+      <button
+        onClick={() => openProduct(p)}
+        aria-label={p.name}
+        className="absolute inset-0 z-0 cursor-pointer"
+      />
+      {p.images[0]?.src ? (
+        <Image
+          src={p.images[0].src}
+          alt={p.images[0].alt ?? p.name}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-contain transition-transform duration-700 group-hover:scale-105 pointer-events-none p-6"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-white/20 pointer-events-none">
+          <span className="material-symbols-outlined text-[64px]">restaurant</span>
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent pointer-events-none" />
+      <div className="absolute top-4 right-4 bg-dark/70 backdrop-blur-sm border border-gold/20 text-gold px-4 py-2 rounded-lg font-display text-lg pointer-events-none">
+        {p.price.amount} DH
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-6 pr-20 space-y-2 pointer-events-none">
+        <h4 className="font-display text-xl text-white">{p.name}</h4>
+        <p className="text-white/40 text-xs font-light leading-relaxed line-clamp-2">
+          {p.description}
+        </p>
+      </div>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const rect = e.currentTarget.getBoundingClientRect();
+          fly(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+            p.images[0]?.src
+          );
+          add({
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            price: p.price.amount,
+            image: p.images[0]?.src ?? "",
+          });
+        }}
+        aria-label={`Ajouter ${p.name} au panier`}
+        className="pointer-events-auto absolute bottom-5 right-5 z-10 w-12 h-12 rounded-full bg-gold text-dark shadow-gold hover:shadow-gold-hover hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
+      >
+        <span className="material-symbols-outlined text-[22px]">add</span>
+      </button>
+    </article>
   );
 }

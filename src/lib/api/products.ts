@@ -25,6 +25,7 @@ interface WCStoreCategory {
   id: number;
   name: string;
   slug: string;
+  description?: string;
   link?: string;
 }
 
@@ -203,6 +204,7 @@ export async function getCategories(
       id: String(c.id),
       slug: c.slug,
       name: c.name,
+      description: stripHtml(c.description ?? ""),
       productCount: c.count ?? 0,
     }));
 }
