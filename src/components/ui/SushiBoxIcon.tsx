@@ -1,8 +1,9 @@
 /**
- * Empty sushi-takeout box icon used as the brand's cart symbol. Outline style,
- * matches the size of Material Symbols at the same font-size by using viewBox
- * 0 0 24 24. Color comes from currentColor — set via the `text-*` classes on
- * the parent.
+ * Empty open-top box icon used as the brand's cart symbol.
+ * 3D isometric drawing of an open sushi-takeout box — the inner floor of the
+ * box is visible through the top opening, giving an "empty box" feel.
+ *
+ * Color comes from `currentColor` — set via `text-*` classes on the parent.
  */
 export function SushiBoxIcon({
   className,
@@ -26,22 +27,23 @@ export function SushiBoxIcon({
       className={className}
       aria-hidden="true"
     >
-      {/* Open lid flap at the back, folded behind the box */}
-      <path d="M7 4.5 L12 6.3 L17 4.5 L12 2.7 Z" />
-      <path d="M7 4.5 L7 6.5" />
-      <path d="M17 4.5 L17 6.5" />
+      {/* Top opening rim — outer parallelogram */}
+      <path d="M3 8.5 L12 4.5 L21 8.5 L12 12.5 Z" />
 
-      {/* Box rim (top opening) */}
-      <path d="M3 9 L12 12 L21 9 L12 6 Z" />
+      {/* Interior floor visible through the opening — smaller inner parallelogram */}
+      <path d="M6.5 9 L12 7 L17.5 9 L12 11 Z" />
 
-      {/* Box body — left face */}
-      <path d="M3 9 L3 16.5 L12 19.5" />
+      {/* Box body — left vertical edge */}
+      <path d="M3 8.5 L3 16.5" />
 
-      {/* Box body — right face */}
-      <path d="M21 9 L21 16.5 L12 19.5" />
+      {/* Box body — right vertical edge */}
+      <path d="M21 8.5 L21 16.5" />
 
       {/* Box body — front center seam */}
-      <path d="M12 12 L12 19.5" />
+      <path d="M12 12.5 L12 20.5" />
+
+      {/* Bottom edges — left/right diagonals to the front bottom corner */}
+      <path d="M3 16.5 L12 20.5 L21 16.5" />
     </svg>
   );
 }
