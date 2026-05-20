@@ -140,8 +140,10 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
 
   return (
     <div>
-      {/* MOBILE/TABLET — Horizontal sticky nav bar */}
-      <div className="lg:hidden sticky top-[88px] z-30 -mx-6 md:-mx-12 px-0 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
+      {/* MOBILE/TABLET — Horizontal sticky nav bar.
+          top-[96px] keeps it below the fixed header.
+          z-[60] keeps it above the header's bottom drop-shadow so chips don't get tinted. */}
+      <div className="lg:hidden sticky top-[96px] z-[60] -mx-6 md:-mx-12 px-0 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
         <div
           className="flex gap-2 overflow-x-auto px-6 md:px-12 snap-x scroll-px-6 [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none" }}
