@@ -141,9 +141,9 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
   return (
     <div>
       {/* MOBILE/TABLET — Horizontal sticky nav bar */}
-      <div className="lg:hidden sticky top-20 z-30 -mx-6 md:-mx-12 px-6 md:px-12 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
+      <div className="lg:hidden sticky top-20 z-30 -mx-6 md:-mx-12 px-0 py-3 bg-dark/95 backdrop-blur-xl border-y border-white/5 mb-8">
         <div
-          className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          className="flex gap-2 overflow-x-auto px-6 md:px-12 snap-x scroll-px-6 [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none" }}
         >
           {categories.map((c) => {
@@ -152,13 +152,13 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
               <button
                 key={c.slug}
                 onClick={() => scrollTo(c.slug)}
-                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] uppercase tracking-[0.12em] font-semibold transition-all ${
+                className={`shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-[0.08em] font-semibold whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-gold text-dark shadow-gold"
                     : "bg-dark-3 text-white/60 border border-white/5"
                 }`}
               >
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-[14px] shrink-0">
                   {iconFor(c.slug)}
                 </span>
                 {c.name}
