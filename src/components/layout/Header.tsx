@@ -7,6 +7,7 @@ import { BranchBadge } from "@/components/branch/BranchBadge";
 import { useUIStore } from "@/lib/store/ui-store";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
+import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -72,7 +73,7 @@ export function Header() {
             aria-label="Ouvrir le panier"
             className="hidden lg:flex items-center text-white/50 hover:text-gold transition-colors relative"
           >
-            <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
+            <SushiBoxIcon size={22} />
             <span
               className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 bg-gold rounded-full text-[8px] text-dark font-bold flex items-center justify-center"
               suppressHydrationWarning

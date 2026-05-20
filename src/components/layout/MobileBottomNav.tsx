@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBranchStore } from "@/lib/store/branch-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
+import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -30,7 +31,7 @@ export function MobileBottomNav() {
         onClick={() => openCartDrawer("cart")}
         className="flex flex-col items-center gap-0.5 text-white/30 hover:text-gold transition-colors"
       >
-        <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
+        <SushiBoxIcon size={20} />
         <span className="text-[7px] uppercase tracking-[0.2em]">Panier</span>
       </button>
 

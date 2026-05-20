@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFlyStore, type Flight } from "@/lib/store/fly-store";
+import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 
 export function FlyToCart() {
   const flights = useFlyStore((s) => s.flights);
@@ -92,9 +93,7 @@ function FlightParticle({
               "linear-gradient(135deg, #BF933A 0%, #F0BF61 50%, #BF933A 100%)",
           }}
         >
-          <span className="material-symbols-outlined text-[26px]">
-            shopping_bag
-          </span>
+          <SushiBoxIcon size={26} strokeWidth={1.8} />
         </div>
       )}
     </motion.div>

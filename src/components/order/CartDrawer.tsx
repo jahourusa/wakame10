@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useOrderModalStore, type DrawerStep } from "@/lib/store/order-modal-store";
+import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 import type { Product } from "@/lib/types/product";
 
 const easing = [0.22, 1, 0.36, 1] as const;
@@ -201,10 +202,8 @@ function CartItemsList({
   if (items.length === 0) {
     return (
       <div className="px-6 py-16 text-center space-y-5">
-        <div className="w-14 h-14 mx-auto rounded-full bg-gold/10 flex items-center justify-center">
-          <span className="material-symbols-outlined text-gold text-[28px]">
-            shopping_bag
-          </span>
+        <div className="w-14 h-14 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold">
+          <SushiBoxIcon size={28} />
         </div>
         <p className="text-white/50 text-sm">Votre panier est vide</p>
       </div>

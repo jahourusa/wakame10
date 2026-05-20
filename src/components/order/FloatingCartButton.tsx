@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
+import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 
 export function FloatingCartButton() {
   const openDrawer = useOrderModalStore((s) => s.openDrawer);
@@ -34,7 +35,7 @@ export function FloatingCartButton() {
             boxShadow: "0 10px 40px rgba(191, 147, 58, 0.5)",
           }}
         >
-          <span className="material-symbols-outlined text-[26px]">shopping_bag</span>
+          <SushiBoxIcon size={26} strokeWidth={1.8} />
 
           {hydrated && count > 0 && (
             <motion.span
