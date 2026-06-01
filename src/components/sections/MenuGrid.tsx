@@ -57,7 +57,7 @@ const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 // in the menu grid. Add an entry per product slug to feature a new one.
 // File must live in /public/ — e.g. /waka-dragon.mp4.
 const PROMO_VIDEOS: Record<string, { src: string; title?: string }> = {
-  "waka-dragon": { src: "/waka-dragon.mp4", title: "Waka Dragon" },
+  "waka-dragon": { src: "/waka-dragon/waka-dragon.mp4", title: "Waka Dragon" },
 };
 
 // Assortiment sizes first, jus + desserts last, others in WP order.
