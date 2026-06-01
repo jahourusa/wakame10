@@ -343,7 +343,7 @@ function ProductCard({ product: p }: { product: Product }) {
 // Square (1:1) auto-playing muted looped video shown as a feature tile in the
 // product grid. Hides itself if the video file is missing so the menu page
 // doesn't break before the asset is uploaded.
-function VideoPromoTile({ src, title }: { src: string; title?: string }) {
+function VideoPromoTile({ src }: { src: string; title?: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) return null;
   return (
@@ -358,18 +358,13 @@ function VideoPromoTile({ src, title }: { src: string; title?: string }) {
         onError={() => setFailed(true)}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
       <div className="absolute top-4 left-4 pointer-events-none">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold text-dark text-[9px] uppercase tracking-[0.25em] font-bold">
           <span className="w-1.5 h-1.5 rounded-full bg-dark animate-pulse" />
           Nouveaute
         </span>
       </div>
-      {title && (
-        <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
-          <h4 className="font-display text-xl text-white drop-shadow-lg">{title}</h4>
-        </div>
-      )}
     </article>
   );
 }
