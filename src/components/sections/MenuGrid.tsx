@@ -343,7 +343,7 @@ function VideoPromoTile({ src, title }: { src: string; title?: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) return null;
   return (
-    <article className="group relative aspect-square rounded-xl overflow-hidden bg-dark-3">
+    <article className="group relative h-[440px] rounded-xl overflow-hidden bg-dark-3">
       <video
         src={src}
         autoPlay
