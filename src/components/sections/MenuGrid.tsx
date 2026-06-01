@@ -62,6 +62,10 @@ const PROMO_VIDEOS: Record<string, { src: string; title?: string }> = {
     src: "/salade-crevettes-vietnamienne/salade-crevettes-vietnamienne.mp4",
     title: "Salade crevettes a la vietnamienne",
   },
+  "tiger-roll": {
+    src: "/california-rolls/california-rolls.mp4",
+    title: "California Rolls",
+  },
 };
 
 // Assortiment sizes first, jus + desserts last, others in WP order.
