@@ -53,6 +53,13 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 
+// Promo videos shown as a square tile inserted *before* a specific product card
+// in the menu grid. Add an entry per product slug to feature a new one.
+// File must live in /public/ — e.g. /waka-dragon.mp4.
+const PROMO_VIDEOS: Record<string, { src: string; title?: string }> = {
+  "waka-dragon": { src: "/waka-dragon.mp4", title: "Waka Dragon" },
+};
+
 // Assortiment sizes first, jus + desserts last, others in WP order.
 const PRIORITY_FIRST = [
   "small-assortiments",
@@ -240,9 +247,20 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
                 </header>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {products.map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
+                  {products.flatMap((p) => {
+                    const promo = PROMO_VIDEOS[p.slug];
+                    const card = <ProductCard key={p.id} product={p} />;
+                    return promo
+                      ? [
+                          <VideoPromoTile
+                            key={`promo-${p.slug}`}
+                            src={promo.src}
+                            title={promo.title}
+                          />,
+                          card,
+                        ]
+                      : [card];
+                  })}
                 </div>
               </section>
             );
@@ -313,6 +331,41 @@ function ProductCard({ product: p }: { product: Product }) {
       >
         <span className="material-symbols-outlined text-[22px]">add</span>
       </button>
+    </article>
+  );
+}
+
+// ----- Promo video tile ------------------------------------------------------
+// Square (1:1) auto-playing muted looped video shown as a feature tile in the
+// product grid. Hides itself if the video file is missing so the menu page
+// doesn't break before the asset is uploaded.
+function VideoPromoTile({ src, title }: { src: string; title?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return (
+    <article className="group relative aspect-square rounded-xl overflow-hidden bg-dark-3">
+      <video
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        onError={() => setFailed(true)}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-4 left-4 pointer-events-none">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold text-dark text-[9px] uppercase tracking-[0.25em] font-bold">
+          <span className="w-1.5 h-1.5 rounded-full bg-dark animate-pulse" />
+          Nouveaute
+        </span>
+      </div>
+      {title && (
+        <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
+          <h4 className="font-display text-xl text-white drop-shadow-lg">{title}</h4>
+        </div>
+      )}
     </article>
   );
 }
