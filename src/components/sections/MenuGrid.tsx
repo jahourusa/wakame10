@@ -58,6 +58,10 @@ const iconFor = (slug: string) => CATEGORY_ICONS[slug] ?? "restaurant";
 // File must live in /public/ — e.g. /waka-dragon.mp4.
 const PROMO_VIDEOS: Record<string, { src: string; title?: string }> = {
   "waka-dragon": { src: "/waka-dragon/waka-dragon.mp4", title: "Waka Dragon" },
+  "salade-burratina": {
+    src: "/salade-crevettes-vietnamienne/salade-crevettes-vietnamienne.mp4",
+    title: "Salade crevettes a la vietnamienne",
+  },
 };
 
 // Assortiment sizes first, jus + desserts last, others in WP order.
