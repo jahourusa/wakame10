@@ -7,9 +7,24 @@ import { motion } from "framer-motion";
 import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useBranchStore } from "@/lib/store/branch-store";
 import { BRANCHES } from "@/lib/types/branch";
-import { placeOrder } from "@/app/checkout/actions";
+import {
+  placeOrder,
+  validateCoupon,
+  type ValidateCouponResult,
+} from "@/app/checkout/actions";
 
 const DELIVERY_FEE = 25;
+
+type AppliedCoupon = Extract<ValidateCouponResult, { ok: true }>;
+
+/** Compute the discount in DH for a given coupon + subtotal (mirrors WC's math). */
+function computeDiscount(coupon: AppliedCoupon, subtotal: number): number {
+  if (coupon.discountType === "percent") {
+    return +((subtotal * coupon.amount) / 100).toFixed(2);
+  }
+  // fixed_cart and fixed_product both reduce by the absolute amount, capped at subtotal
+  return Math.min(coupon.amount, subtotal);
+}
 
 export function CheckoutForm() {
   const items = useCartStore((s) => s.items);
@@ -17,7 +32,6 @@ export function CheckoutForm() {
   const clear = useCartStore((s) => s.clear);
   const branch = useBranchStore((s) => s.branch);
   const branchMeta = BRANCHES.find((b) => b.slug === branch);
-  const total = subtotal + DELIVERY_FEE;
 
   const [pay, setPay] = useState<"cod" | "card">("cod");
   const [submitting, setSubmitting] = useState(false);
@@ -26,6 +40,16 @@ export function CheckoutForm() {
     orderNumber: string;
     branchName: string;
   } | null>(null);
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponApplying, setCouponApplying] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const discount = coupon ? computeDiscount(coupon, subtotal) : 0;
+  const deliveryFee = coupon?.freeShipping ? 0 : DELIVERY_FEE;
+  const total = Math.max(0, subtotal - discount + deliveryFee);
 
   if (confirmed) {
     return (
@@ -71,6 +95,31 @@ export function CheckoutForm() {
     );
   }
 
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code || couponApplying) return;
+    setCouponError(null);
+    setCouponApplying(true);
+    try {
+      const result = await validateCoupon(code, subtotal);
+      if (result.ok) {
+        setCoupon(result);
+        setCouponInput("");
+      } else {
+        setCouponError(result.error);
+      }
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setCouponApplying(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponError(null);
+  };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -102,8 +151,9 @@ export function CheckoutForm() {
         branch: { slug: branchMeta.slug, name: branchMeta.name },
         customer,
         items,
-        shippingFee: DELIVERY_FEE,
+        shippingFee: deliveryFee,
         paymentMethod: pay,
+        couponCode: coupon?.code ?? null,
       });
 
       if (result.ok) {
@@ -209,10 +259,86 @@ export function CheckoutForm() {
           ))}
         </ul>
 
+        <div className="relative z-10 border-t border-white/5 pt-4">
+          <p className="text-white/40 text-[10px] uppercase tracking-[0.25em] font-semibold mb-3">
+            Code promo
+          </p>
+          {!coupon ? (
+            <>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponInput}
+                  onChange={(e) => {
+                    setCouponInput(e.target.value);
+                    if (couponError) setCouponError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyCoupon();
+                    }
+                  }}
+                  placeholder="Entrez votre code"
+                  className="flex-1 bg-dark-3 border border-white/5 rounded-lg px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20 transition-all uppercase tracking-wide"
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  disabled={couponApplying || !couponInput.trim()}
+                  className="btn-outline px-5 rounded-lg font-bold text-[10px] uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {couponApplying ? "..." : "Appliquer"}
+                </button>
+              </div>
+              {couponError && (
+                <p className="text-red-400 text-xs mt-2">{couponError}</p>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-gold/10 border border-gold/30">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="material-symbols-outlined text-gold text-[20px]">
+                  local_offer
+                </span>
+                <div className="min-w-0">
+                  <p className="text-gold text-sm font-bold uppercase tracking-wide truncate">
+                    {coupon.code}
+                  </p>
+                  <p className="text-white/60 text-[10px] mt-0.5">
+                    {coupon.discountType === "percent"
+                      ? `-${coupon.amount}%`
+                      : `-${coupon.amount} DH`}
+                    {coupon.freeShipping ? " + livraison offerte" : ""}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={removeCoupon}
+                aria-label="Retirer le code"
+                className="text-white/50 hover:text-gold transition-colors shrink-0"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="space-y-3 relative z-10 border-t border-white/5 pt-4 text-sm">
-          <Row label="Sous-total" value={`${subtotal} DH`} />
-          <Row label="Livraison" value={`${DELIVERY_FEE} DH`} />
-          <Row label="Total" value={`${total} DH`} bold />
+          <Row label="Sous-total" value={`${subtotal.toFixed(2)} DH`} />
+          {coupon && discount > 0 && (
+            <Row
+              label={`Reduction (${coupon.code})`}
+              value={`-${discount.toFixed(2)} DH`}
+              accent="gold"
+            />
+          )}
+          <Row
+            label="Livraison"
+            value={deliveryFee === 0 ? "Offerte" : `${deliveryFee} DH`}
+          />
+          <Row label="Total" value={`${total.toFixed(2)} DH`} bold />
         </div>
 
         {error && (
@@ -331,19 +457,31 @@ function PaymentTile({
   );
 }
 
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+function Row({
+  label,
+  value,
+  bold,
+  accent,
+}: {
+  label: string;
+  value: string;
+  bold?: boolean;
+  accent?: "gold";
+}) {
+  const labelClass = bold
+    ? "text-white text-base"
+    : accent === "gold"
+      ? "text-gold/90 text-sm"
+      : "text-white/60 text-sm";
+  const valueClass = bold
+    ? "font-display text-2xl text-gold"
+    : accent === "gold"
+      ? "text-gold font-semibold"
+      : "";
   return (
-    <div
-      className={`flex justify-between ${
-        bold
-          ? "text-white text-base"
-          : "text-white/60 text-sm"
-      }`}
-    >
-      <span>{label}</span>
-      <span className={`tabular-nums ${bold ? "font-display text-2xl text-gold" : ""}`}>
-        {value}
-      </span>
+    <div className={`flex justify-between gap-3 ${labelClass}`}>
+      <span className="truncate">{label}</span>
+      <span className={`tabular-nums shrink-0 ${valueClass}`}>{value}</span>
     </div>
   );
 }

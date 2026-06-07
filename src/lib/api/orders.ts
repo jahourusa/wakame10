@@ -33,6 +33,8 @@ export interface CreateOrderInput {
   items: CartItem[];
   shippingFee: number;
   paymentMethod: PaymentMethod;
+  /** Optional coupon code already validated client-side. WC computes the actual discount. */
+  couponCode?: string | null;
 }
 
 export interface WCOrderResponse {
@@ -110,6 +112,10 @@ export async function createWCOrder(input: CreateOrderInput): Promise<WCOrderRes
         total: input.shippingFee.toFixed(2),
       },
     ],
+    // WC computes the discount + marks the coupon as used.
+    coupon_lines: input.couponCode
+      ? [{ code: input.couponCode.toLowerCase() }]
+      : [],
     customer_note: input.customer.notes ?? "",
     // Branch attribution — the leading underscore on `_branch` keeps it hidden
     // from the default Custom Fields UI (used programmatically). The plain
