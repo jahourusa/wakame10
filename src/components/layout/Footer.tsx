@@ -62,22 +62,29 @@ export function Footer() {
               Nous Suivre
             </h6>
             <div className="flex gap-3">
-              <Link
-                href="#"
+              <a
+                href="https://www.instagram.com/wakame_official/?hl=fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Suivez-nous sur Instagram"
                 className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-gold hover:text-dark hover:border-gold transition-all duration-300"
               >
-                <span className="material-symbols-outlined text-[16px]">
-                  social_leaderboard
-                </span>
-              </Link>
-              <Link
-                href="#"
-                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:bg-gold hover:text-dark hover:border-gold transition-all duration-300"
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  photo_camera
-                </span>
-              </Link>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
