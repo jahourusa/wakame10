@@ -9,7 +9,6 @@ import { CartDrawer } from "@/components/order/CartDrawer";
 import { FloatingCartButton } from "@/components/order/FloatingCartButton";
 import { FlyToCart } from "@/components/order/FlyToCart";
 import { OrderDataInit } from "@/components/order/OrderDataInit";
-import { TawkChat } from "@/components/chat/TawkChat";
 import { getProductsByCategory } from "@/lib/api/products";
 
 const playfair = Playfair_Display({
@@ -79,7 +78,6 @@ export default async function RootLayout({
         <MobileDrawer />
         <MobileBottomNav />
         <BranchModal />
-        <TawkChat />
       </body>
     </html>
   );
