@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useFlyStore } from "@/lib/store/fly-store";
 import type { Product } from "@/lib/types/product";
 
 interface Props {
@@ -13,23 +14,38 @@ interface Props {
 
 export function ProductCustomizer({ product, onAdded }: Props) {
   const add = useCartStore((s) => s.add);
+  const fly = useFlyStore((s) => s.fly);
   const [qty, setQty] = useState(1);
 
   const unitPrice = product.price.amount;
   const totalPrice = unitPrice * qty;
 
-  const onAddClick = () => {
+  const onAddClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Capture the click position BEFORE the modal closes (button will unmount)
+    const rect = e.currentTarget.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    const image = product.images[0]?.src;
+
     add(
       {
         id: product.id,
         slug: product.slug,
         name: product.name,
         price: unitPrice,
-        image: product.images[0]?.src ?? "",
+        image: image ?? "",
       },
       qty
     );
     onAdded?.();
+
+    // The floating cart is hidden while the modal is open, so it's not in
+    // the DOM yet at this instant. Wait one frame for the modal to close
+    // and the floating cart to mount, then trigger fly so it lands on the
+    // floating cart's actual position.
+    requestAnimationFrame(() => {
+      fly(startX, startY, image);
+    });
   };
 
   return (
