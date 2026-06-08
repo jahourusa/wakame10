@@ -279,14 +279,14 @@ export function CheckoutForm() {
                       applyCoupon();
                     }
                   }}
-                  placeholder="Entrez votre code"
-                  className="flex-1 bg-dark-3 border border-white/5 rounded-lg px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20 transition-all uppercase tracking-wide"
+                  placeholder="CODE PROMO"
+                  className="min-w-0 flex-1 bg-dark-3 border border-white/5 rounded-lg px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none focus:border-gold/40 focus:ring-1 focus:ring-gold/20 transition-all uppercase tracking-wide"
                 />
                 <button
                   type="button"
                   onClick={applyCoupon}
                   disabled={couponApplying || !couponInput.trim()}
-                  className="btn-outline px-5 rounded-lg font-bold text-[10px] uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="btn-outline shrink-0 px-4 py-3 rounded-lg font-bold text-[10px] uppercase tracking-[0.12em] whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {couponApplying ? "..." : "Appliquer"}
                 </button>
