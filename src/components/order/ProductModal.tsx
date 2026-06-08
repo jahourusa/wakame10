@@ -11,7 +11,6 @@ export function ProductModal() {
   const productOpen = useOrderModalStore((s) => s.productOpen);
   const product = useOrderModalStore((s) => s.selectedProduct);
   const closeProduct = useOrderModalStore((s) => s.closeProduct);
-  const openDrawer = useOrderModalStore((s) => s.openDrawer);
 
   // Lock body scroll while open
   useEffect(() => {
@@ -66,7 +65,6 @@ export function ProductModal() {
                 product={product}
                 onAdded={() => {
                   closeProduct();
-                  openDrawer("cart");
                 }}
               />
             </div>
