@@ -90,7 +90,7 @@ export function Footer() {
         </div>
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="text-white/20 text-[9px] uppercase tracking-[0.2em]">
-            &copy; 2024 Wakame Sushi. L&apos;art de l&apos;Omakase.
+            &copy; 2026 Wakame Sushi. L&apos;art de l&apos;Omakase.
           </p>
           <div className="flex gap-6 text-[9px] uppercase tracking-[0.2em] text-white/20">
             <span>Tous droits reserves</span>
