@@ -13,7 +13,7 @@ export function Testimonial() {
       <div className="max-w-4xl mx-auto px-6 md:px-12 text-center relative z-10">
         <Reveal>
           <p className="font-display text-2xl md:text-3xl lg:text-[40px] italic leading-[1.35] text-white/85">
-            &ldquo;Le meilleur sushi de Casablanca, sans aucun doute. La fraicheur du
+            &ldquo;Le meilleur sushi du Maroc, sans aucun doute. La fraicheur du
             poisson et l&apos;originalite des recettes font de chaque commande une fete
             pour les papilles.&rdquo;
           </p>

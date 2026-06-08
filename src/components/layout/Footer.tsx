@@ -24,7 +24,7 @@ export function Footer() {
               Villes
             </h6>
             <ul className="space-y-2.5 text-white/35 text-xs">
-              {["Casablanca", "Rabat", "Kenitra"].map((city) => (
+              {["Rabat", "Kenitra"].map((city) => (
                 <li key={city}>
                   <Link
                     href="#"

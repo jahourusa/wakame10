@@ -1,4 +1,4 @@
-export type BranchSlug = "casablanca" | "rabat" | "kenitra";
+export type BranchSlug = "rabat" | "kenitra";
 
 export interface Branch {
   slug: BranchSlug;
@@ -7,7 +7,6 @@ export interface Branch {
 }
 
 export const BRANCHES: Branch[] = [
-  { slug: "casablanca", name: "Casablanca", area: "Maarif & Gauthier" },
   { slug: "rabat", name: "Rabat", area: "Agdal & Hay Riad" },
   { slug: "kenitra", name: "Kenitra", area: "Centre Ville" },
 ];

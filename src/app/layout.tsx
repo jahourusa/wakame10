@@ -29,7 +29,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Wakame Sushi — Sushis & Fusion Asiatique",
   description:
-    "Sushis et fusion asiatique a Casablanca, Rabat et Kenitra. Livraison premium en emballage isotherme.",
+    "Sushis et fusion asiatique a Rabat et Kenitra. Livraison premium en emballage isotherme.",
 };
 
 export default async function RootLayout({
