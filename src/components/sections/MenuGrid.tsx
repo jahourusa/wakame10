@@ -242,7 +242,7 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
                     >
                       {iconFor(c.slug)}
                     </span>
-                    <span className="text-sm font-medium tracking-wide flex-1">
+                    <span className="text-[12px] font-bold tracking-[0.08em] uppercase flex-1">
                       {c.name}
                     </span>
                     {isActive && (

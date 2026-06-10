@@ -64,6 +64,27 @@ function fromMinorUnits(value: string, minor: number): number {
   return Number(value) / Math.pow(10, minor);
 }
 
+/** Decode the handful of HTML entities WP can emit in product / category names. */
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&eacute;/g, "é")
+    .replace(/&egrave;/g, "è")
+    .replace(/&ecirc;/g, "ê")
+    .replace(/&agrave;/g, "à")
+    .replace(/&acirc;/g, "â")
+    .replace(/&ocirc;/g, "ô")
+    .replace(/&ucirc;/g, "û")
+    .replace(/&icirc;/g, "î")
+    .replace(/&ccedil;/g, "ç");
+}
+
 /** "Eau gazeuse" -> "Eau Gazeuse"; "SALMON FRESH" -> "Salmon Fresh"; preserves accented chars. */
 function toTitleCase(str: string): string {
   return str
@@ -90,7 +111,7 @@ function mapProduct(wp: WCStoreProduct): Product {
   return {
     id: String(wp.id),
     slug: wp.slug,
-    name: toTitleCase(wp.name),
+    name: toTitleCase(decodeEntities(wp.name)),
     description: desc || shortDesc,
     shortDescription: shortDesc,
     price: toMoney(wp.prices),
@@ -203,7 +224,7 @@ export async function getCategories(
     .map((c) => ({
       id: String(c.id),
       slug: c.slug,
-      name: c.name,
+      name: decodeEntities(c.name),
       description: stripHtml(c.description ?? ""),
       productCount: c.count ?? 0,
     }));
