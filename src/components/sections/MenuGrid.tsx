@@ -562,20 +562,22 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
                 </header>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {products.flatMap((p) => {
-                    const promo = PROMO_VIDEOS[p.slug];
-                    const card = <ProductCard key={p.id} product={p} />;
-                    return promo
-                      ? [
-                          <VideoPromoTile
-                            key={`promo-${p.slug}`}
-                            src={promo.src}
-                            title={promo.title}
-                          />,
-                          card,
-                        ]
-                      : [card];
-                  })}
+                  {/* Promo videos always render first in the category section */}
+                  {products
+                    .filter((p) => PROMO_VIDEOS[p.slug])
+                    .map((p) => {
+                      const promo = PROMO_VIDEOS[p.slug]!;
+                      return (
+                        <VideoPromoTile
+                          key={`promo-${p.slug}`}
+                          src={promo.src}
+                          title={promo.title}
+                        />
+                      );
+                    })}
+                  {products.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
                 </div>
               </section>
             );
