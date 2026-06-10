@@ -12,7 +12,7 @@ interface Props {
   products: Product[];
 }
 
-const PRIORITY_CATEGORIES = ["medium-assortiments", "bentos", "tacos"];
+const PRIORITY_CATEGORIES = ["medium-assortiments", "bentos", "tacos-fusion"];
 
 function priorityRank(slug: string): number {
   const i = PRIORITY_CATEGORIES.indexOf(slug);
