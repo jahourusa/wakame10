@@ -127,12 +127,284 @@ function sortCategories<T extends { slug: string }>(list: T[]): T[] {
 
 const sectionId = (slug: string) => `cat-${slug}`;
 
+/**
+ * Within-category product ordering — derived from the official PDF menu.
+ * Listed top-to-bottom in the order they should appear inside their section.
+ * Matching is done by normalized name (lowercased, accent-stripped, alphanumeric-only)
+ * so small naming variations between WP and the PDF still match.
+ * Products not found in the list fall to the end of their section in WP order.
+ */
+const PDF_PRODUCT_ORDER: string[] = [
+  // SOUPES & SAVEURS
+  "SOUPE MISO",
+  "SOUPE MISO SAUMON",
+  "SOUPE MISO CREVETTES",
+  "SOUPE ROYALE SYMPHONIE",
+  "SOUPE TOM YUM GUN",
+  "SOUPE HANO",
+  // FRESH BOWLS
+  "POULET A LA VIETNAMIENNE",
+  "WAKA CHEESY",
+  "CRISPY CREVETTE",
+  "CREVETTE A LA VIETNAMIENNE",
+  "LA BURRATINA",
+  "VITELLO TONNATO",
+  "TAKO TROPICAL",
+  // POKE BOWLS
+  "POKE BOWL POULET",
+  "POKE BOWL POULET SAUCE TRUFFE",
+  "POKE BOWL CREVETTE",
+  "POKE BOWL CREVETTE SAUCE CACAHUETE",
+  "POKE BOWL SAUMON",
+  "POKE BOWL SAUMON SAUCE CACAHUETE",
+  "POKE BOWL CRABE",
+  "POKE BOWL BOEUF SAUCE TRUFFE",
+  "POKE BOWL MIX",
+  // TACOS FUSION
+  "TACOS POULET TRUFFE",
+  "TACOS CREVETTE CRUNCHY",
+  "TACOS POULET AUX CHAMPIGNONS",
+  "TACOS CREVETTES AUX CHAMPIGNONS",
+  "TACOS BOEUF GUACAMOLE",
+  "TACOS SAUMON TRUFFE",
+  // TAPAS FUSION
+  "AUBERGINE A LA SAUCE PONZU",
+  "NEMS POULET",
+  "POMMES DE TERRE GRENAILLES A LA SAUCE TRUFFE",
+  "AVOCAT GRILLE AU FOUR A CHARBON",
+  "CHEESY",
+  "NEMS FROMAGE",
+  "CREVETTES TEMPURA",
+  "PATATES DOUCES A LA STRACIATELLA",
+  "CREVETTES AUX AMANDES",
+  "POULET SWEET & SOUR",
+  "NEMS CREVETTE",
+  "CREVETTE SWEET & SOUR",
+  "CALAMAR GRILLE A LA SAUCE THAI",
+  "GYOZA CREVETTES",
+  "TRIO DE CHAMPIGNONS FARCIS AUX DELICES D'AMOUR",
+  // YAKITORI DU CHEF AU FEU DE BOIS
+  "BROCHETTE BOULETTES POULET",
+  "BROCHETTE POULET",
+  "BROCHETTE BOEUF FROMAGE",
+  "BROCHETTE CREVETTES",
+  "BROCHETTE BOEUF FROMAGE PANE",
+  "BROCHETTE DE POULPE",
+  "BROCHETTE SAUMON",
+  "YAKI SIGNATURE",
+  // BASE DE SALADES
+  "MESCLUN DE SALADE A LA SAUCE BALSAMIQUE",
+  "MESCLUN DE SALADE A LA SAUCE FRAMBOISE",
+  "MESCLUN DE SALADE A LA SAUCE PONZU",
+  // PROTEINES AU FEU DE BOIS
+  "SUPREME DE POULET GRILLE",
+  "SUPREME DE POULET GRILLE (PETITE PORTION)",
+  "SUPREME DE POULET GRILLE (GRANDE PORTION)",
+  "SAUMON GRILLE SAVEUR D'ASIE",
+  "SAUMON GRILLE SAVEUR D'ASIE (PETITE PORTION)",
+  "SAUMON GRILLE SAVEUR D'ASIE (GRANDE PORTION)",
+  "CREVETTES GRILLES (TIGER)",
+  "CREVETTES GRILLES (TIGER) (PETITE PORTION)",
+  "CREVETTES GRILLES (TIGER) (GRANDE PORTION)",
+  "POULPE GRILLE",
+  "POULPE GRILLE (PETITE PORTION)",
+  "POULPE GRILLE (GRANDE PORTION)",
+  "FILET DE BOEUF MIGNON GRILLE",
+  "FILET DE BOEUF MIGNON GRILLE (PETITE PORTION)",
+  "FILET DE BOEUF MIGNON GRILLE (GRANDE PORTION)",
+  // COIN DES GARNITURES
+  "PATATES DOUCES A LA STRACIATELLA",
+  "POMMES DE TERRE GRENAILLES A LA SAUCE TRUFFE",
+  "AVOCAT GRILLE AU FOUR A CHARBON",
+  "AUBERGINE A LA SAUCE PONZU",
+  "BURRATINA",
+  // EAT CLEAN
+  "POULET FACON TEPPANYAKI",
+  "POULET CURRY VERT",
+  "FRUITS DE MER CURRY ROUGE",
+  "CREVETTES FACON TEPPANYAKI",
+  "PAVE DE SAUMON SAVEUR D'ASIE",
+  "PULPO CELERI-RAVE",
+  "LOUP-BAR A LA SAUCE DUO",
+  // NOUILLES
+  "NOUILLES VEGETARIENNES",
+  "NOUILLES POULET",
+  "NOUILLES FRUIT DE MER",
+  "NOUILLES CREVETTE",
+  "NOUILLES BOEUF",
+  // RIZ
+  "RIZ SAUTE VEGETARIEN",
+  "RIZ SAUTE POULET",
+  "RIZ SAUTE FRUITS DE MER",
+  "RIZ SAUTE CREVETTE",
+  "RIZ SAUTE BOEUF",
+  // WOKS
+  "WOK POULET NOIX DE CAJOU",
+  "WOK BOEUF GINGEMBRE",
+  "WOK GAMBAS NOIX DE CAJOU",
+  "WOK SEA FOOD SYMPHONIE",
+  // BENTOS
+  "BENTO DELICE",
+  "BENTO CRUNCHY",
+  "BENTO EBI",
+  "BENTO REGAL",
+  "BENTO FRAICHEUR",
+  "BENTO TRENDY",
+  "BENTO DOUCEUR",
+  "BENTO VOLCANO",
+  "BENTO MIX",
+  "BENTO LIGHTER",
+  // COMBO
+  "ELIT COMBO",
+  "PRIME COMBO",
+  // MENU KIDS
+  "CRUNCHY KIDS",
+  // ASSORTIMENTS SMALL
+  "MINI DETENTE",
+  "MINI TRIO",
+  "MINI YUMMY",
+  "WAKA SPRING",
+  "MINI CALIFORNIA",
+  "MINI REGAL",
+  "WAKA TASTY",
+  "WAKA DELICE",
+  "WAKA FRY",
+  "EBY CRUNCHY",
+  "WAKA CALIFORNIA",
+  "MINI SALMON",
+  "WAKA DRAGON",
+  // ASSORTIMENTS MEDIUM
+  "WAKA FRESH",
+  "WAKA CRUNCHY",
+  "CRUNCHY TIME",
+  "WAKA PARTY",
+  "WAKA NORI",
+  "WAKA ZEN",
+  "SALMON FRESH",
+  "WAKA MIX",
+  "WAKA SLIM",
+  // ASSORTIMENTS LARGE
+  "SUSHI SYMPHONIE",
+  "SUSHI FRAICHEUR",
+  "SUSHI DREAM",
+  "CRUNCHY BREAK",
+  "CRUNCHY DELICE",
+  "SUSHI RELAX",
+  // ASSORTIMENTS X-LARGE
+  "SUSHI PLAISIR",
+  "SYMPHONIE ROYALE",
+  "L'INCONTOURNABLE",
+  "SUSHI FAMILY",
+  "BIG FRESH",
+  "CRUNCHY FAMILY",
+  // CALIFORNIA ROLLS
+  "CALIFORNIA CLASSIQUE",
+  "CALIFORNIA SAUMON AVOCAT",
+  "CALIFORNIA EBI FRY",
+  "CALIFORNIA CREME CHEESE",
+  "CALIFORNIA GREEN",
+  "CALIFORNIA NORVEGIEN",
+  "CALIFORNIA SHICHIMI",
+  "CALIFORNIA RAINBOW",
+  "CALIFORNIA TIGER ROLL",
+  "TIGER ROLL",
+  // CRUNCHY ROLLS
+  "NEW DELHI",
+  "BOMBAY",
+  "BORA BORA",
+  "MALMO",
+  "NAPOLI",
+  "FRY EBI FRY",
+  "AGRA",
+  "DRAGON EYE",
+  // CRISPY ROLLS
+  "CRISPY MAKI SURIMI",
+  "CRISPY MAKI SAUMON",
+  "CRISPY MAKI SPECIAL",
+  "CRISPY KACHIWA",
+  "CRISPY NARA",
+  "CRISPY YATOMI",
+  "CRISPY YOKOHAMA",
+  // SUSHI PIZZA
+  "PIZZA SAUMON AVOCAT",
+  "PIZZA CREVETTE MOZZARELLA",
+  "PIZZA SAUMON CRABE",
+  "PIZZA SAUMON ANGUILLE",
+  "PIZZA SAUMON MOZZARELLA",
+  // TANUKI ROLLS
+  "CRUNCHY CREVETTE",
+  "CRUNCHY SAUMON",
+  "SUPER CHEESY CRUNCHY",
+  // SPRING ROLLS
+  "ROULEAU DE PRINTEMPS SAUMON",
+  "ROULEAU DE PRINTEMPS CREVETTE",
+  "ROULEAU DE PRINTEMPS CREVETTE CRABE",
+  "ROULEAU DE PRINTEMPS SAUMON FUME CRABE",
+  "ROULEAU DE PRINTEMPS SAUMON CREVETTE",
+  "SPRING CRABE MANGUE",
+  "SLIM EXOTIQUE",
+  // NORI ROLLS
+  "NEW JERSEY",
+  "LOS ANGELES",
+  "TUCSON",
+  "OMAHA",
+  // SPECIAL ROLLS
+  "MOSCOW",
+  "WASHINGTON",
+  "TOKYO",
+  "VEGAS",
+  "SAN JOSE",
+  "HOT-EEL",
+  "SPICY SALMON",
+  // PREMIUM ROLLS
+  "CRISTAL ROLL",
+  "EBI CROWN",
+  "SAMURAI",
+  "OCEAN ROLL",
+  "KOBE ROLL",
+  "KAMAKURA",
+  "TOYOSU",
+  "SAKURA PEANUT ROLL",
+  // LE CHEF PROPOSE (premium)
+  "5 PIECES",
+  "10 PIECES",
+  "15 PIECES",
+  "COFFRET PREMIUM 50 PCS",
+  // PLAISIRS SUCRES (desserts)
+  "FONDANT AU CHOCOLAT",
+  "TIRAMISU",
+  "CREME BRULEE PISTACHE",
+  "COCO MANGO",
+  // FRESH JUICES (jus)
+  "JUS DE CITRON",
+  "JUS ORANGE",
+  "CITRON GINGEMBRE",
+];
+
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // strip diacritics
+    .replace(/[^a-z0-9]/g, "");
+}
+
+const PDF_RANK = new Map<string, number>(
+  PDF_PRODUCT_ORDER.map((n, i) => [normalizeName(n), i])
+);
+
+function productRank(p: Product): number {
+  const r = PDF_RANK.get(normalizeName(p.name));
+  return r === undefined ? Number.MAX_SAFE_INTEGER : r;
+}
+
 export function MenuGrid({ initialProducts, initialCategories }: Props) {
   const branch = useBranchStore((s) => s.branch);
 
   const categories = useMemo(() => sortCategories(initialCategories), [initialCategories]);
 
-  // Group products by category, filtered by current branch.
+  // Group products by category, filtered by current branch,
+  // and sort each category's products by the official PDF order.
   const productsByCat = useMemo(() => {
     const map: Record<string, Product[]> = {};
     for (const p of initialProducts) {
@@ -140,6 +412,11 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
         !branch || p.branchSlugs.length === 0 || p.branchSlugs.includes(branch);
       if (!branchOk) continue;
       (map[p.category] = map[p.category] ?? []).push(p);
+    }
+    // Stable sort within each category by the official PDF order; unlisted
+    // products fall through to their original WP order.
+    for (const slug of Object.keys(map)) {
+      map[slug].sort((a, b) => productRank(a) - productRank(b));
     }
     return map;
   }, [initialProducts, branch]);
