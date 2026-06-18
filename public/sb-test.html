@@ -3,80 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Support Board widget test</title>
+  <title>Support Board widget test v2</title>
   <link rel="stylesheet" href="https://app.wakame.ma/support-board/css/main.css?v=3.9.0">
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #1a1a1a;
-      color: #fff;
-    }
-    h1 { color: #BF933A; }
-    code {
-      background: #333;
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-    .status {
-      margin: 10px 0;
-      padding: 10px;
-      background: #2a2a2a;
-      border-left: 4px solid #BF933A;
-    }
+    body {font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:20px;background:#1a1a1a;color:#fff;}
+    h1 {color:#BF933A;}
+    .status {margin:10px 0;padding:10px;background:#2a2a2a;border-left:4px solid #BF933A;}
   </style>
 </head>
 <body>
-  <h1>Support Board Widget Test</h1>
-
-  <p>This is an isolated HTML page (no React, no Next.js) to verify the chat bubble loads correctly.</p>
+  <h1>Support Board Widget Test v2</h1>
+  <p>Fix: set <code>SB_INIT_URL</code> + give the script <code>id="sbinit"</code> so main.js can find its own URL even though the folder is <code>/support-board/</code> not <code>/supportboard/</code>.</p>
 
   <div class="status" id="status-jquery">jQuery: <span>loading...</span></div>
   <div class="status" id="status-main">main.js: <span>not yet loaded</span></div>
   <div class="status" id="status-init">init.php: <span>not yet fetched</span></div>
   <div class="status" id="status-bubble">Chat bubble: <span>not detected</span></div>
 
-  <h2>What should happen</h2>
-  <ol>
-    <li>jQuery loads → status "loaded"</li>
-    <li>main.js loads → status "loaded"</li>
-    <li>main.js fetches <code>init.php</code> → status "fetched"</li>
-    <li>Chat bubble appears at bottom-left within 3-5 seconds</li>
-  </ol>
-
-  <h2>If the bubble doesn't appear</h2>
-  <p>Open browser DevTools (F12) → Console tab. Look for errors. Paste them and we'll diagnose.</p>
-
-  <!-- Load jQuery first -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" onload="
-    document.querySelector('#status-jquery span').textContent = 'loaded ✓';
-    document.querySelector('#status-jquery span').style.color = '#5cb85c';
-  "></script>
-
-  <!-- Then main.js — it auto-fetches init.php from its src URL -->
-  <script src="https://app.wakame.ma/support-board/js/main.js?v=3.9.0" onload="
-    document.querySelector('#status-main span').textContent = 'loaded ✓';
-    document.querySelector('#status-main span').style.color = '#5cb85c';
-  " onerror="
-    document.querySelector('#status-main span').textContent = 'FAILED (check console)';
-    document.querySelector('#status-main span').style.color = '#d9534f';
-  "></script>
-
-  <!-- Watch for the chat bubble -->
+  <!-- Tell main.js exactly where to find itself, BEFORE it loads -->
   <script>
-    setTimeout(function() {
-      var bubble = document.querySelector('.sb-chat-btn, .sb-main.sb-chat');
-      var initEl = document.querySelector('.sb-main.sb-chat');
-      document.querySelector('#status-init span').textContent =
-        initEl ? 'fetched ✓ (HTML injected)' : 'NOT fetched — main.js probably failed';
-      document.querySelector('#status-init span').style.color = initEl ? '#5cb85c' : '#d9534f';
+    window.SB_INIT_URL = "https://app.wakame.ma/support-board/js/main.js?v=3.9.0";
+  </script>
 
-      document.querySelector('#status-bubble span').textContent =
-        bubble ? 'DETECTED ✓ — look bottom-left' : 'NOT detected — check console';
-      document.querySelector('#status-bubble span').style.color = bubble ? '#5cb85c' : '#d9534f';
-    }, 4000);
+  <!-- jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" onload="
+    document.querySelector('#status-jquery span').textContent='loaded ✓';
+    document.querySelector('#status-jquery span').style.color='#5cb85c';
+  "></script>
+
+  <!-- main.js with id='sbinit' as the fallback URL hint -->
+  <script id="sbinit" src="https://app.wakame.ma/support-board/js/main.js?v=3.9.0" onload="
+    document.querySelector('#status-main span').textContent='loaded ✓';
+    document.querySelector('#status-main span').style.color='#5cb85c';
+  "></script>
+
+  <script>
+    setTimeout(function(){
+      var bubble=document.querySelector('.sb-chat-btn');
+      var initEl=document.querySelector('.sb-main.sb-chat');
+      document.querySelector('#status-init span').textContent=initEl?'fetched ✓':'NOT fetched';
+      document.querySelector('#status-init span').style.color=initEl?'#5cb85c':'#d9534f';
+      document.querySelector('#status-bubble span').textContent=bubble?'DETECTED ✓ — look bottom-left':'NOT detected';
+      document.querySelector('#status-bubble span').style.color=bubble?'#5cb85c':'#d9534f';
+    },4000);
   </script>
 </body>
 </html>
