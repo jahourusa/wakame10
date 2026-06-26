@@ -403,8 +403,11 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
 
   const categories = useMemo(() => sortCategories(initialCategories), [initialCategories]);
 
-  // Group products by category, filtered by current branch,
-  // and sort each category's products by the official PDF order.
+  // Group products by category, filtered by current branch.
+  // Within each category, sort by ascending price — matches how the
+  // official PDF menu is laid out (cheapest items first per section).
+  // For equal prices, fall back to the curated PDF name order so the
+  // display stays stable and predictable.
   const productsByCat = useMemo(() => {
     const map: Record<string, Product[]> = {};
     for (const p of initialProducts) {
@@ -413,10 +416,12 @@ export function MenuGrid({ initialProducts, initialCategories }: Props) {
       if (!branchOk) continue;
       (map[p.category] = map[p.category] ?? []).push(p);
     }
-    // Stable sort within each category by the official PDF order; unlisted
-    // products fall through to their original WP order.
     for (const slug of Object.keys(map)) {
-      map[slug].sort((a, b) => productRank(a) - productRank(b));
+      map[slug].sort((a, b) => {
+        const dp = a.price.amount - b.price.amount;
+        if (dp !== 0) return dp;
+        return productRank(a) - productRank(b);
+      });
     }
     return map;
   }, [initialProducts, branch]);
