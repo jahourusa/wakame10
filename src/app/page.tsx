@@ -29,7 +29,11 @@ export default async function Home() {
         <SignaturePromo />
         <WhyChooseUs />
         <Testimonial />
-        <section id="contact" className="py-32 md:py-40 bg-dark">
+        <section
+          id="contact"
+          className="theater-surface relative overflow-hidden py-32 md:py-40"
+        >
+          <div className="gold-thread absolute left-1/2 top-0 w-1/2 -translate-x-1/2" />
           <InstagramGrid />
           <div className="px-6 md:px-12">
             <Newsletter />

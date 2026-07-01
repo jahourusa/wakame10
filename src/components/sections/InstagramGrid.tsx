@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
+import { BrushStroke } from "@/components/menu-experience/LineArt";
 import { IMG } from "@/lib/constants/media";
 
 const tiles = [
@@ -13,20 +14,23 @@ const tiles = [
 
 export function InstagramGrid() {
   return (
-    <div className="px-6 md:px-12">
-      <Reveal className="text-center mb-14">
-        <h3 className="font-display text-3xl md:text-4xl">Suivez notre Univers</h3>
-        <p className="text-gold font-semibold tracking-[0.3em] uppercase text-[10px] mt-3">
+    <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">
+      <Reveal className="mb-14 text-center">
+        <span className="text-[10px] font-medium uppercase tracking-[0.4em] text-gold-bright/70">
+          Suivez notre univers
+        </span>
+        <h3 className="mt-4 font-display text-3xl text-washi md:text-4xl">
           @wakamesushiofficiel
-        </p>
+        </h3>
+        <BrushStroke className="mx-auto mt-4 h-5 w-44 text-gold" />
       </Reveal>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {tiles.map((t, i) => (
           <Reveal
             key={t.alt}
             delay={0.1 * (i + 1)}
-            className={`aspect-square overflow-hidden rounded-lg group relative cursor-pointer ${
+            className={`group relative aspect-square cursor-pointer overflow-hidden rounded-xl border border-gold/15 transition-colors duration-500 hover:border-gold/45 ${
               t.offset ? "md:mt-8" : ""
             }`}
           >
@@ -35,10 +39,10 @@ export function InstagramGrid() {
               alt={t.alt}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gold/0 group-hover:bg-gold/20 transition-colors duration-500 flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-kuro/0 transition-colors duration-500 group-hover:bg-kuro/40">
+              <span className="material-symbols-outlined text-3xl text-gold-bright opacity-0 transition-opacity duration-500 group-hover:opacity-100">
                 photo_camera
               </span>
             </div>
