@@ -93,3 +93,74 @@ body {
 body.branch-lock {
   overflow: hidden !important;
 }
+
+/* ================================================================
+ * REDESIGN SURFACES — used by /menu page only, scoped via classnames
+ * ================================================================ */
+
+/* Film grain over the menu experience */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -100%;
+  z-index: 80;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  animation: grain-shift 9s steps(10) infinite;
+}
+
+/* Washi paper surface — cream, subtly textured */
+.washi-surface {
+  background-color: #f4eddd;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.018' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.78 0 0 0 0 0.72 0 0 0 0 0.58 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23p)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201, 164, 92, 0.10), transparent 60%);
+}
+
+/* Dark theater surface */
+.theater-surface {
+  background-color: #07100c;
+  background-image:
+    radial-gradient(ellipse 60% 45% at 50% 8%, rgba(201, 164, 92, 0.13), transparent 65%),
+    radial-gradient(ellipse 45% 35% at 12% 85%, rgba(20, 60, 42, 0.5), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 88% 80%, rgba(201, 164, 92, 0.05), transparent 70%);
+}
+
+/* Breathing gold CTA halo */
+.gold-breathe {
+  animation: gold-breathe 3.2s ease-in-out infinite;
+}
+
+/* Hanko red stamp badge */
+.hanko {
+  font-family: var(--font-jost), sans-serif;
+  letter-spacing: 0.14em;
+  background: #b23a2a;
+  color: #f7e9dd;
+  box-shadow: 0 2px 10px -2px rgba(178, 58, 42, 0.6);
+  transform: rotate(-3deg);
+}
+
+/* Gold hairline divider */
+.gold-thread {
+  background: linear-gradient(90deg, transparent, #c9a45c 20%, #e9cd8b 50%, #c9a45c 80%, transparent);
+  height: 1px;
+}
+
+/* content-visibility for the 250+ dish grid */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* Chip rows: hide scrollbar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Lenis recommended styles (only active when .lenis class is on <html>) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+

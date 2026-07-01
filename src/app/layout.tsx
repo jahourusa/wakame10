@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import {
+  Playfair_Display,
+  Inter,
+  Zen_Old_Mincho,
+  Cormorant_Garamond,
+  Jost,
+} from "next/font/google";
 import "./globals.css";
 import { BranchModal } from "@/components/branch/BranchModal";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
@@ -27,6 +33,32 @@ const inter = Inter({
   display: "swap",
 });
 
+// --- Redesign fonts (used by the /menu experience) ---
+// Zen Old Mincho — full CJK family: preload:false loads only latin glyphs,
+// then extra kanji chunks on demand. Skipping preload saves ~5MB.
+const mincho = Zen_Old_Mincho({
+  variable: "--font-mincho",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  preload: false,
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  weight: ["500", "600"],
+  style: ["italic"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jost = Jost({
+  variable: "--font-jost",
+  weight: ["300", "400", "500", "600"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Wakame Sushi — Sushis & Fusion Asiatique",
   description:
@@ -48,7 +80,10 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="fr" className={`dark ${playfair.variable} ${inter.variable}`}>
+    <html
+      lang="fr"
+      className={`dark ${playfair.variable} ${inter.variable} ${mincho.variable} ${cormorant.variable} ${jost.variable}`}
+    >
       <head>
         <link
           rel="stylesheet"
