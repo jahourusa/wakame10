@@ -7,7 +7,7 @@ import { BRANCHES } from "@/lib/types/branch";
 export default function ContactPage() {
   return (
     <>
-      <Header />
+      <Header forceGlass />
       <main className="washi-surface relative min-h-screen overflow-hidden pb-24 pt-32">
         <span
           aria-hidden

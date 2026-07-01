@@ -6,7 +6,7 @@ import { BrushStroke } from "@/components/menu-experience/LineArt";
 export default function CheckoutPage() {
   return (
     <>
-      <Header />
+      <Header forceGlass />
       <main className="washi-surface relative min-h-screen overflow-hidden pb-32 pt-32">
         <span
           aria-hidden

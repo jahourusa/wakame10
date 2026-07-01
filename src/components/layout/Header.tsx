@@ -9,7 +9,7 @@ import { useCartStore, cartSelectors } from "@/lib/store/cart-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
 import { SushiBoxIcon } from "@/components/ui/SushiBoxIcon";
 
-export function Header() {
+export function Header({ forceGlass = false }: { forceGlass?: boolean } = {}) {
   const [scrolled, setScrolled] = useState(false);
   const openMenuDrawer = useUIStore((s) => s.openDrawer);
   const openCartDrawer = useOrderModalStore((s) => s.openDrawer);
@@ -22,10 +22,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const glass = forceGlass || scrolled;
+
   return (
     <header
       id="header"
-      className={`fixed top-0 w-full z-50 ${scrolled ? "nav-glass" : "nav-transparent"}`}
+      className={`fixed top-0 w-full z-50 ${glass ? "nav-glass" : "nav-transparent"}`}
     >
       <div className="flex justify-between items-center px-6 md:px-12 py-5">
         <Link href="/#hero" className="flex items-center">
