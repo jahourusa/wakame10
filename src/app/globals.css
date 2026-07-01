@@ -158,6 +158,15 @@ body.branch-lock {
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Rising steam plumes for the entry theater */
+.steam {
+  position: absolute;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.06), transparent 60%);
+  filter: blur(20px);
+  animation: steam-rise 12s ease-in-out infinite;
+}
+
 /* Lenis recommended styles (only active when .lenis class is on <html>) */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
