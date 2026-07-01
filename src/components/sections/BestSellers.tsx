@@ -64,18 +64,20 @@ export function BestSellers({ products }: Props) {
           {featured.map((p, i) => {
             const isFirst = i === 0;
             return (
-              <Reveal
-                key={p.id}
-                delay={0.1 * (i + 1)}
-                className="group relative flex cursor-pointer flex-col rounded-xl p-5 transition-colors duration-500 hover:bg-washi-2/60"
-              >
-                <span className="pointer-events-none absolute inset-0 rounded-xl border border-transparent transition-colors duration-500 group-hover:border-gold/35" />
-
-                <button
+              <Reveal key={p.id} delay={0.1 * (i + 1)}>
+                <article
                   onClick={() => openProduct(p)}
-                  aria-label={p.name}
-                  className="absolute inset-0 z-0 cursor-pointer"
-                />
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openProduct(p);
+                    }
+                  }}
+                  className="group relative flex cursor-pointer flex-col rounded-xl p-5 transition-colors duration-500 hover:bg-washi-2/60"
+                >
+                <span className="pointer-events-none absolute inset-0 rounded-xl border border-transparent transition-colors duration-500 group-hover:border-gold/35" />
 
                 <div className="relative mb-4 aspect-square overflow-hidden rounded-xl bg-washi-2/50">
                   {p.images[0]?.src ? (
@@ -138,6 +140,7 @@ export function BestSellers({ products }: Props) {
                 >
                   <span className="material-symbols-outlined text-[20px]">add</span>
                 </button>
+                </article>
               </Reveal>
             );
           })}
