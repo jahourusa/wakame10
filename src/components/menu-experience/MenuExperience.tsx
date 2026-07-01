@@ -8,6 +8,7 @@ import ParallaxDecor from "./ParallaxDecor";
 import BrandBand from "./BrandBand";
 import InViewVideo from "./InViewVideo";
 import { BrushStroke, WaveLines } from "./LineArt";
+import HealthyMoodSection from "./HealthyMoodSection";
 import { familyKanji, type Family } from "@/lib/menu/families";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrderModalStore } from "@/lib/store/order-modal-store";
@@ -170,7 +171,10 @@ export default function MenuExperience({ families }: { families: Family[] }) {
                 <BrushStroke className="mt-4 h-5 w-52 text-gold" />
               </header>
 
-              {fam.categories.map((cat) => {
+              {fam.kind === "compose" ? (
+                <HealthyMoodSection family={fam} />
+              ) : (
+                fam.categories.map((cat) => {
                 if (cat.items.length === 0) return null;
                 const [first, ...rest] = cat.items;
                 const featureFirst = cat.items.length > 3;
@@ -214,7 +218,8 @@ export default function MenuExperience({ families }: { families: Family[] }) {
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </section>
           ))}
         </div>

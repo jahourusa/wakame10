@@ -2,11 +2,18 @@ import type { Product, Category as WCCategory } from "@/lib/types/product";
 import { productToDish, type DishLike } from "@/lib/menu/dish";
 
 export type Category = { id: string; title: string; items: DishLike[] };
-export type Family = { id: string; label: string; categories: Category[] };
+export type FamilyKind = "grid" | "compose";
+export type Family = {
+  id: string;
+  label: string;
+  categories: Category[];
+  kind: FamilyKind;
+};
 
 export type FamilyId =
   | "entrees"
   | "bowls"
+  | "healthy"
   | "feu"
   | "rolls"
   | "bentos"
@@ -17,6 +24,12 @@ interface FamilyDef {
   label: string;
   kanji: string;
   categorySlugs: string[];
+  /**
+   * "grid" (default) renders every sub-category as a normal dish grid.
+   * "compose" replaces the whole family with a single banner + wizard —
+   * used by Healthy Mood to bundle salade + protein + garniture into a plate.
+   */
+  kind?: FamilyKind;
 }
 
 /**
@@ -35,7 +48,18 @@ export const FAMILY_DEFS: FamilyDef[] = [
     id: "bowls",
     label: "Bowls & Salades",
     kanji: "丼",
-    categorySlugs: ["fresh-bowls", "poke-bowl", "base-de-salades", "eat-clean"],
+    categorySlugs: ["fresh-bowls", "poke-bowl", "eat-clean"],
+  },
+  {
+    id: "healthy",
+    label: "Healthy Mood",
+    kanji: "健",
+    kind: "compose",
+    categorySlugs: [
+      "base-de-salades",
+      "proteines-au-feu-de-bois",
+      "coin-des-garnitures",
+    ],
   },
   {
     id: "feu",
@@ -43,12 +67,10 @@ export const FAMILY_DEFS: FamilyDef[] = [
     kanji: "炭火",
     categorySlugs: [
       "yakitori-du-chef-au-feu-de-bois",
-      "proteines-au-feu-de-bois",
       "tacos-fusion",
       "nouilles",
       "riz",
       "woks",
-      "coin-des-garnitures",
     ],
   },
   {
@@ -419,6 +441,11 @@ export function groupProductsByFamily(
         items: sorted.map((p) => productToDish(p, PRODUCT_VIDEO[p.slug] ?? null)),
       });
     }
-    return { id: fam.id, label: fam.label, categories: cats };
+    return {
+      id: fam.id,
+      label: fam.label,
+      categories: cats,
+      kind: fam.kind ?? "grid",
+    };
   }).filter((f) => f.categories.length > 0);
 }

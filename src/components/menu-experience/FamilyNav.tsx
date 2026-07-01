@@ -37,7 +37,11 @@ export default function FamilyNav({
 
       <div className="no-scrollbar flex gap-2 overflow-x-auto py-2.5">
         {families.flatMap((f) =>
-          f.categories.map((c) => {
+          // Compose families don't render individual cat sections, so chips
+          // pointing at their sub-cat slugs would dead-end. Skip them.
+          f.kind === "compose"
+            ? []
+            : f.categories.map((c) => {
             const isActive = f.id === activeFamily;
             return (
               <button
