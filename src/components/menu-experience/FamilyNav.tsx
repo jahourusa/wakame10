@@ -36,15 +36,24 @@ export default function FamilyNav({
       </div>
 
       <div className="no-scrollbar flex gap-2 overflow-x-auto py-2.5">
-        {fam.categories.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => onJump(`cat-${c.id}`)}
-            className="cursor-pointer whitespace-nowrap rounded-full border border-ink/10 px-3.5 py-1.5 text-[11px] font-light tracking-wide text-ink-soft transition-all duration-300 hover:border-gold/60 hover:bg-gold/10 hover:text-ink"
-          >
-            {c.title}
-          </button>
-        ))}
+        {families.flatMap((f) =>
+          f.categories.map((c) => {
+            const isActive = f.id === activeFamily;
+            return (
+              <button
+                key={`${f.id}-${c.id}`}
+                onClick={() => onJump(`cat-${c.id}`)}
+                className={`cursor-pointer whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[11px] font-light tracking-wide transition-all duration-300 hover:border-gold/60 hover:bg-gold/10 hover:text-ink ${
+                  isActive
+                    ? "border-gold/40 bg-gold/10 text-ink"
+                    : "border-ink/10 text-ink-soft/70"
+                }`}
+              >
+                {c.title}
+              </button>
+            );
+          })
+        )}
       </div>
     </nav>
   );
