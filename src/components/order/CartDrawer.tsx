@@ -26,14 +26,12 @@ export function CartDrawer() {
   const setQty = useCartStore((s) => s.setQuantity);
   const remove = useCartStore((s) => s.remove);
 
-  // Lock body scroll
   useEffect(() => {
     if (drawerOpen) document.body.classList.add("branch-lock");
     else document.body.classList.remove("branch-lock");
     return () => document.body.classList.remove("branch-lock");
   }, [drawerOpen]);
 
-  // ESC closes
   useEffect(() => {
     if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -43,7 +41,6 @@ export function CartDrawer() {
     return () => window.removeEventListener("keydown", onKey);
   }, [drawerOpen, closeDrawer]);
 
-  // -------- Step navigation -----------------------------------------------
   const onContinue = () => {
     if (items.length === 0) return;
     if (drawerStep === "cart") setStep("salades");
@@ -88,7 +85,7 @@ export function CartDrawer() {
         >
           <div
             onClick={closeDrawer}
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-kuro/70 backdrop-blur-sm"
           />
 
           <motion.aside
@@ -96,16 +93,16 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.45, ease: easing }}
-            className="absolute top-0 right-0 w-full sm:w-[480px] h-full bg-dark-2 border-l border-gold/10 shadow-2xl flex flex-col"
+            className="washi-surface absolute right-0 top-0 flex h-full w-full flex-col border-l border-gold/25 shadow-2xl sm:w-[480px]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+            <div className="flex items-center justify-between border-b border-ink/10 bg-washi/70 px-6 py-5 backdrop-blur-md">
               <div className="flex items-center gap-3">
                 {drawerStep !== "cart" && (
                   <button
                     onClick={onBack}
                     aria-label="Retour"
-                    className="text-white/50 hover:text-gold transition-colors"
+                    className="text-ink-soft transition-colors hover:text-gold-dim"
                   >
                     <span className="material-symbols-outlined text-[22px]">
                       arrow_back
@@ -113,24 +110,24 @@ export function CartDrawer() {
                   </button>
                 )}
                 <div>
-                  <p className="text-gold text-[9px] uppercase tracking-[0.3em] font-semibold">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-gold-dim">
                     Etape {drawerStep === "cart" ? 1 : drawerStep === "salades" ? 2 : 3}{" "}
                     / 3
                   </p>
-                  <h2 className="font-display text-xl">{headerTitle}</h2>
+                  <h2 className="mt-1 font-display text-xl text-ink">{headerTitle}</h2>
                 </div>
               </div>
               <button
                 onClick={closeDrawer}
                 aria-label="Fermer"
-                className="text-white/50 hover:text-gold transition-colors"
+                className="text-ink-soft transition-colors hover:text-gold-dim"
               >
                 <span className="material-symbols-outlined text-[24px]">close</span>
               </button>
             </div>
 
             {/* Step progress bar */}
-            <div className="h-1 bg-dark-3">
+            <div className="h-1 bg-washi-2">
               <motion.div
                 animate={{
                   width:
@@ -141,12 +138,12 @@ export function CartDrawer() {
                         : "100%",
                 }}
                 transition={{ duration: 0.45, ease: easing }}
-                className="h-full bg-gradient-to-r from-gold-dark via-gold to-gold-light"
+                className="h-full bg-gradient-to-r from-gold-dim via-gold to-gold-bright"
               />
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-lenis-prevent>
               {drawerStep === "cart" && (
                 <CartItemsList items={items} setQty={setQty} remove={remove} />
               )}
@@ -161,19 +158,22 @@ export function CartDrawer() {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-white/5 p-6 space-y-4 bg-dark-2/95 backdrop-blur-sm">
+            <div className="space-y-4 border-t border-ink/10 bg-washi/90 p-6 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-white/40 text-[10px] uppercase tracking-[0.2em]">
+                <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-ink-soft/70">
                   {drawerStep === "boissons" ? "Total" : "Sous-total"}
                 </span>
-                <span className="font-display text-2xl text-gold tabular-nums">
-                  {total.toFixed(2)} DH
+                <span className="font-display text-2xl tabular-nums text-gold-dim">
+                  {total.toFixed(2)}
+                  <span className="ml-1 text-xs uppercase tracking-widest opacity-70">
+                    dh
+                  </span>
                 </span>
               </div>
               <button
                 onClick={onContinue}
                 disabled={items.length === 0}
-                className="btn-gold w-full px-7 py-4 rounded-full font-bold text-[12px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="gold-breathe flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-bright px-7 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-kuro transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {ctaLabel}
                 <span className="material-symbols-outlined text-[18px]">
@@ -201,17 +201,17 @@ function CartItemsList({
 }) {
   if (items.length === 0) {
     return (
-      <div className="px-6 py-16 text-center space-y-5">
-        <div className="w-14 h-14 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold">
+      <div className="space-y-5 px-6 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gold/25 bg-washi-2/70 text-gold-dim">
           <SushiBoxIcon size={28} />
         </div>
-        <p className="text-white/50 text-sm">Votre panier est vide</p>
+        <p className="text-sm text-ink-soft">Votre panier est vide</p>
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-white/5">
+    <ul className="divide-y divide-ink/10">
       <AnimatePresence>
         {items.map((it) => (
           <motion.li
@@ -223,7 +223,7 @@ function CartItemsList({
             transition={{ duration: 0.3 }}
             className="flex gap-4 p-5"
           >
-            <div className="relative w-16 h-16 shrink-0 rounded-md overflow-hidden bg-[url('/background.webp')] bg-cover bg-center">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-ink/10 bg-washi-2/70">
               {it.image ? (
                 <Image
                   src={it.image}
@@ -231,48 +231,49 @@ function CartItemsList({
                   fill
                   sizes="64px"
                   className="object-contain p-1"
+                  style={{ filter: "drop-shadow(0 6px 8px rgba(34,48,42,0.18))" }}
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-white/30">
+                <div className="absolute inset-0 flex items-center justify-center text-ink-soft/30">
                   <span className="material-symbols-outlined text-[20px]">
                     restaurant
                   </span>
                 </div>
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex justify-between gap-2">
-                <h4 className="text-sm font-medium truncate">{it.name}</h4>
+                <h4 className="truncate text-sm font-medium text-ink">{it.name}</h4>
                 <button
                   onClick={() => remove(it.id)}
                   aria-label="Retirer"
-                  className="text-white/30 hover:text-gold transition-colors shrink-0"
+                  className="shrink-0 text-ink-soft/50 transition-colors hover:text-hanko"
                 >
                   <span className="material-symbols-outlined text-[18px]">close</span>
                 </button>
               </div>
-              <p className="text-gold text-xs mt-1">{it.price} DH</p>
-              <div className="flex items-center justify-between mt-3">
-                <div className="inline-flex items-center bg-dark-4 rounded-md border border-white/5">
+              <p className="mt-1 text-xs font-medium text-gold-dim">{it.price} DH</p>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="inline-flex items-center rounded-md border border-ink/15 bg-washi">
                   <button
                     onClick={() => setQty(it.id, it.quantity - 1)}
-                    className="px-2 py-1 text-white/60 hover:text-gold transition-colors"
+                    className="px-2 py-1 text-ink-soft transition-colors hover:text-gold-dim"
                     aria-label="Diminuer"
                   >
                     <span className="material-symbols-outlined text-[14px]">
                       remove
                     </span>
                   </button>
-                  <span className="px-3 text-xs tabular-nums">{it.quantity}</span>
+                  <span className="px-3 text-xs tabular-nums text-ink">{it.quantity}</span>
                   <button
                     onClick={() => setQty(it.id, it.quantity + 1)}
-                    className="px-2 py-1 text-white/60 hover:text-gold transition-colors"
+                    className="px-2 py-1 text-ink-soft transition-colors hover:text-gold-dim"
                     aria-label="Augmenter"
                   >
                     <span className="material-symbols-outlined text-[14px]">add</span>
                   </button>
                 </div>
-                <span className="text-sm tabular-nums">
+                <span className="text-sm tabular-nums text-ink">
                   {(it.price * it.quantity).toFixed(2)} DH
                 </span>
               </div>
@@ -292,7 +293,7 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
 
   if (products.length === 0) {
     return (
-      <div className="px-6 py-12 text-center text-white/40 text-sm">
+      <div className="px-6 py-12 text-center text-sm text-ink-soft/70">
         Aucun produit dans cette categorie.
       </div>
     );
@@ -300,7 +301,7 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
 
   return (
     <div className="p-5">
-      <p className="text-center text-white/50 text-sm mb-5 font-display italic">
+      <p className="mb-5 text-center font-cormorant text-base italic text-gold-dim">
         {step === "salades"
           ? "Completez votre festin"
           : "Que voulez-vous boire ?"}
@@ -311,8 +312,10 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
           return (
             <article key={p.id} className="space-y-2">
               <div
-                className={`relative aspect-square rounded-xl overflow-hidden bg-[url('/background.webp')] bg-cover bg-center transition-all ${
-                  present ? "ring-2 ring-gold ring-offset-2 ring-offset-dark-2" : ""
+                className={`relative aspect-square overflow-hidden rounded-xl border bg-washi-2/70 transition-all ${
+                  present
+                    ? "border-gold ring-2 ring-gold/40"
+                    : "border-ink/10 hover:border-gold/45"
                 }`}
               >
                 {p.images[0]?.src ? (
@@ -322,9 +325,10 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
                     fill
                     sizes="200px"
                     className="object-contain p-3"
+                    style={{ filter: "drop-shadow(0 12px 16px rgba(34,48,42,0.22))" }}
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-white/20">
+                  <div className="absolute inset-0 flex items-center justify-center text-ink-soft/30">
                     <span className="material-symbols-outlined text-[40px]">
                       restaurant
                     </span>
@@ -343,10 +347,10 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
                         })
                   }
                   aria-label={present ? "Retirer" : "Ajouter"}
-                  className={`absolute bottom-2 right-2 w-10 h-10 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                  className={`absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 ${
                     present
-                      ? "bg-gold text-dark"
-                      : "bg-dark text-gold border border-gold/30 hover:bg-gold hover:text-dark"
+                      ? "bg-gold text-kuro"
+                      : "border border-gold/40 bg-washi text-gold-dim hover:border-gold hover:bg-gold hover:text-kuro"
                   }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -355,10 +359,10 @@ function UpsellList({ products, step }: { products: Product[]; step: DrawerStep 
                 </button>
               </div>
               <div className="px-1">
-                <h4 className="text-sm font-medium leading-tight line-clamp-2">
+                <h4 className="line-clamp-2 text-sm font-medium leading-tight text-ink">
                   {p.name}
                 </h4>
-                <p className="text-gold text-xs mt-1 font-semibold">
+                <p className="mt-1 text-xs font-medium text-gold-dim">
                   {p.price.amount} DH
                 </p>
               </div>
