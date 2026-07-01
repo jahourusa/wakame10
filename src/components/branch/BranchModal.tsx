@@ -37,9 +37,11 @@ const rise = {
 function BranchCard({
   branch,
   onSelect,
+  comingSoon = false,
 }: {
   branch: Branch;
   onSelect: (slug: BranchSlug) => void;
+  comingSoon?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0.5);
@@ -62,32 +64,81 @@ function BranchCard({
           mx.set(0.5);
           my.set(0.5);
         }}
-        className="group relative w-[300px] rounded-2xl border border-gold/15 bg-kuro-2/70 px-9 py-8 text-center backdrop-blur-md transition-colors duration-500 hover:border-gold/45 sm:w-[330px]"
+        className={`group relative w-[300px] rounded-2xl border px-9 py-8 text-center backdrop-blur-md transition-colors duration-500 sm:w-[330px] ${
+          comingSoon
+            ? "border-white/10 bg-white/[0.04]"
+            : "border-gold/15 bg-kuro-2/70 hover:border-gold/45"
+        }`}
       >
-        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_60%_45%_at_50%_0%,rgba(201,164,92,0.14),transparent_70%)] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+        {!comingSoon && (
+          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_60%_45%_at_50%_0%,rgba(201,164,92,0.14),transparent_70%)] opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+        )}
 
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-gold/25 text-gold transition-transform duration-500 group-hover:scale-110">
+        <div
+          className={`mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border transition-transform duration-500 ${
+            comingSoon
+              ? "border-white/15 text-white/40"
+              : "border-gold/25 text-gold group-hover:scale-110"
+          }`}
+        >
           <PinIcon className="h-7 w-7" />
         </div>
 
-        <h3 className="font-display text-4xl text-washi">{branch.name}</h3>
-        <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-washi/40">{branch.area}</p>
-
-        <button
-          data-branch={branch.name}
-          onClick={() => onSelect(branch.slug)}
-          className="gold-breathe mt-7 w-full cursor-pointer rounded-lg bg-gradient-to-r from-gold to-gold-bright px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.22em] text-kuro transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
+        <h3
+          className={`font-display text-4xl ${
+            comingSoon ? "text-white/50" : "text-washi"
+          }`}
         >
-          Commander ici
-          <span className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1.5">
-            &rarr;
-          </span>
-        </button>
+          {branch.name}
+        </h3>
+        <p
+          className={`mt-2 text-[11px] uppercase tracking-[0.3em] ${
+            comingSoon ? "text-white/30" : "text-washi/40"
+          }`}
+        >
+          {branch.area}
+        </p>
 
-        <span className="absolute left-3 top-3 h-3 w-3 border-l border-t border-gold/30" />
-        <span className="absolute right-3 top-3 h-3 w-3 border-r border-t border-gold/30" />
-        <span className="absolute bottom-3 left-3 h-3 w-3 border-b border-l border-gold/30" />
-        <span className="absolute bottom-3 right-3 h-3 w-3 border-b border-r border-gold/30" />
+        {comingSoon ? (
+          <div
+            aria-disabled="true"
+            className="mt-7 w-full cursor-not-allowed rounded-lg border border-white/15 bg-white/[0.06] px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.22em] text-white/55"
+          >
+            Bientot disponible
+          </div>
+        ) : (
+          <button
+            data-branch={branch.name}
+            onClick={() => onSelect(branch.slug)}
+            className="gold-breathe mt-7 w-full cursor-pointer rounded-lg bg-gradient-to-r from-gold to-gold-bright px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.22em] text-kuro transition-transform duration-300 hover:scale-[1.03] active:scale-[0.98]"
+          >
+            Commander ici
+            <span className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1.5">
+              &rarr;
+            </span>
+          </button>
+        )}
+
+        <span
+          className={`absolute left-3 top-3 h-3 w-3 border-l border-t ${
+            comingSoon ? "border-white/15" : "border-gold/30"
+          }`}
+        />
+        <span
+          className={`absolute right-3 top-3 h-3 w-3 border-r border-t ${
+            comingSoon ? "border-white/15" : "border-gold/30"
+          }`}
+        />
+        <span
+          className={`absolute bottom-3 left-3 h-3 w-3 border-b border-l ${
+            comingSoon ? "border-white/15" : "border-gold/30"
+          }`}
+        />
+        <span
+          className={`absolute bottom-3 right-3 h-3 w-3 border-b border-r ${
+            comingSoon ? "border-white/15" : "border-gold/30"
+          }`}
+        />
       </motion.div>
     </motion.div>
   );
@@ -245,7 +296,12 @@ export function BranchModal() {
 
             <motion.div variants={rise} className="mt-8 flex flex-col gap-7 sm:flex-row">
               {BRANCHES.map((b) => (
-                <BranchCard key={b.slug} branch={b} onSelect={setBranch} />
+                <BranchCard
+                  key={b.slug}
+                  branch={b}
+                  onSelect={setBranch}
+                  comingSoon={b.slug === "kenitra"}
+                />
               ))}
             </motion.div>
 
