@@ -15,7 +15,7 @@ export default function FamilyNav({
   if (!fam) return null;
 
   return (
-    <nav className="sticky top-[60px] z-30 -mx-6 border-b border-ink/10 bg-washi/85 px-6 backdrop-blur-md sm:-mx-10 sm:top-[64px] sm:px-10">
+    <nav className="sticky top-[76px] z-30 -mx-6 border-b border-ink/10 bg-washi/95 px-6 backdrop-blur-md sm:-mx-10 sm:top-[84px] sm:px-10">
       <div className="no-scrollbar flex gap-1 overflow-x-auto pt-3">
         {families.map((f) => (
           <button
